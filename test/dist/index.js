@@ -681,8 +681,12 @@ function emitter () {
       return this;
     },
     off(event, ...listeners){
-      const list = listenersLists[event] || [];
-      listenersLists[event] = listeners.length ? list.filter(listener => !listeners.includes(listener)) : [];
+      if (!event) {
+        Object.keys(listenersLists).forEach(ev => this.off(ev));
+      } else {
+        const list = listenersLists[event] || [];
+        listenersLists[event] = listeners.length ? list.filter(listener => !listeners.includes(listener)) : [];
+      }
       return this;
     }
   }
@@ -771,6 +775,43 @@ var events = plan$1()
     em.off('foo', secondListener);
     em.dispatch('foo', 3);
     t.equal(counter, 3);
+  })
+  .test('unregister all listeners of a given type', function * (t) {
+    let counter = 0;
+    const firstListener = inc => {
+      counter += inc;
+    };
+    const secondListener = inc => {
+      counter += inc * 2;
+    };
+    const thirdListener = inc => {
+      counter -= inc;
+    };
+    const em = emitter();
+    em.on('foo', firstListener, secondListener);
+    em.on('bar', thirdListener);
+    em.off('foo');
+    em.dispatch('foo', 3);
+    t.equal(counter, 0);
+    em.dispatch('bar', 200);
+    t.equal(counter, -200);
+  })
+  .test('unregister all listeners', function * (t) {
+    let counter = 0;
+    const firstListener = inc => {
+      counter += inc;
+    };
+    const secondListener = inc => {
+      counter -= inc;
+    };
+    const em = emitter();
+    em.on('foo', firstListener);
+    em.on('bar', secondListener);
+    em.off();
+    em.dispatch('foo', 3);
+    t.equal(counter, 0);
+    em.dispatch('bar', 200);
+    t.equal(counter, 0);
   })
   .test('proxy: map event listeners to methods', function * (t) {
     let counter = 0;
