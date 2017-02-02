@@ -218,8 +218,8 @@ function emitter () {
       return this;
     },
     off(event, ...listeners){
-      const list = listenersLists[event];
-      listenersLists[event] = list.filter(listener => !listeners.includes(listener));
+      const list = listenersLists[event] || [];
+      listenersLists[event] = listeners.length ? list.filter(listener => !listeners.includes(listener)) : [];
       return this;
     }
   }
