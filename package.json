@@ -1,0 +1,38 @@
+{
+  "name": "smart-table-core",
+  "version": "0.0.0",
+  "description": "smart-core directives",
+  "jsnext:main": "index.js",
+  "main": "dist/smart-table.js",
+  "scripts": {
+    "build": "rollup -c rollup.config.js",
+    "build:test": "rollup -c test/rollup.config.js",
+    "test": "npm run build:test && node test/dist/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/smart-table/smart-table-core.git"
+  },
+  "keywords": [
+    "smart-table",
+    "datatable",
+    "table",
+    "grid"
+  ],
+  "author": "Laurent Renard",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/smart-table/smart-table-core/issues"
+  },
+  "homepage": "https://github.com/smart-table/smart-table-core#readme",
+  "devDependencies": {
+    "rollup": "^0.41.4",
+    "rollup-plugin-node-resolve": "^2.0.0",
+    "zora": "^0.3.0"
+  },
+  "dependencies": {
+    "smart-table-filter": "^1.0.0",
+    "smart-table-json-pointer": "^1.0.1",
+    "smart-table-sort": "^1.0.0"
+  }
+}

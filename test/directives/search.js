@@ -1,0 +1,26 @@
+import zora from 'zora';
+import search from '../../src/directives/search';
+import {emitter, SEARCH_CHANGED} from '../../src/events';
+
+function fakeTable () {
+  const table = emitter();
+  table.search = input => input;
+  return table;
+}
+
+export default zora()
+  .test('search directive should be able to register listener', function * (t) {
+    let counter = 0;
+    const table = fakeTable();
+    const dir = search({table});
+    dir.onSearchChange(() => counter++);
+    table.dispatch(SEARCH_CHANGED);
+    t.equal(counter, 1, 'should have updated the counter');
+  })
+  .test('search directive should call table search method passing the appropriate argument', function * (t) {
+    const table = fakeTable();
+    const dir = search({table});
+    const arg = dir.search(42);
+    t.deepEqual(arg, {value: 42});
+  });
+
