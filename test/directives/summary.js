@@ -1,5 +1,7 @@
 import summary from '../../src/directives/summary';
-import {emitter, SUMMARY_CHANGED} from '../../src/events';
+import {SUMMARY_CHANGED} from '../../src/events';
+import {emitter} from 'smart-table-events';
+
 import zora from 'zora';
 
 export default zora()

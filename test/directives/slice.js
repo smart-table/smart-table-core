@@ -1,6 +1,7 @@
 import zora from 'zora';
 import slice from '../../src/directives/slice';
-import {emitter, PAGE_CHANGED} from '../../src/events';
+import {PAGE_CHANGED} from '../../src/events';
+import {emitter} from 'smart-table-events';
 
 function fakeTable () {
   const table = emitter();

@@ -1,4 +1,5 @@
-import {proxyListener, FILTER_CHANGED} from '../events';
+import {FILTER_CHANGED} from '../events';
+import {proxyListener} from 'smart-table-events';
 
 const filterListener = proxyListener({[FILTER_CHANGED]: 'onFilterChange'});
 

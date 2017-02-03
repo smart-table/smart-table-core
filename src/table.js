@@ -1,6 +1,6 @@
 import sort from 'smart-table-sort';
 import filter from 'smart-table-filter';
-import search from './search';
+import search from 'smart-table-search';
 import table from './directives/table';
 
 export default function ({

@@ -1,9 +1,9 @@
 import slice from '../slice';
 import {curry, tap, compose, apply} from 'smart-table-operators';
 import pointer from 'smart-table-json-pointer';
+import {emitter} from 'smart-table-events';
 import sliceFactory from '../slice';
 import {
-  emitter,
   SUMMARY_CHANGED,
   TOGGLE_SORT,
   DISPLAY_CHANGED,

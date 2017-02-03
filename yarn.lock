@@ -245,6 +245,10 @@ signal-exit@^3.0.0:
   version "3.0.2"
   resolved "https://registry.yarnpkg.com/signal-exit/-/signal-exit-3.0.2.tgz#b5fdc08f1287ea1178628e415e25132b73646c6d"
 
+smart-table-events@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/smart-table-events/-/smart-table-events-1.0.0.tgz#c0621a3e61de604eee5bc8e26304611998a0c336"
+
 smart-table-filter@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/smart-table-filter/-/smart-table-filter-1.0.0.tgz#85e3fcc356dd02fd4bd2e6321d538893e190ce6e"
@@ -259,6 +263,12 @@ smart-table-json-pointer@^1.0.1:
 smart-table-operators@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/smart-table-operators/-/smart-table-operators-2.0.0.tgz#f0c2550d7368fcf507db8bca1c9d4995159f219d"
+
+smart-table-search@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/smart-table-search/-/smart-table-search-1.0.1.tgz#63775aea2c853deaeb5f0d9a7b4af1ad5bb4f0a8"
+  dependencies:
+    smart-table-json-pointer "^1.0.1"
 
 smart-table-sort@^1.0.0:
   version "1.0.0"

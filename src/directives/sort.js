@@ -1,4 +1,5 @@
-import {proxyListener, TOGGLE_SORT} from '../events'
+import {TOGGLE_SORT} from '../events'
+import {proxyListener} from 'smart-table-events';
 
 const sortListeners = proxyListener({[TOGGLE_SORT]: 'onSortToggle'});
 const directions = ['asc', 'desc'];

@@ -1,4 +1,5 @@
-import {proxyListener, PAGE_CHANGED} from '../events';
+import {PAGE_CHANGED} from '../events';
+import {proxyListener} from 'smart-table-events';
 
 const sliceListener = proxyListener({[PAGE_CHANGED]: 'onPageChange'});
 

@@ -1,6 +1,7 @@
 import zora from 'zora';
 import search from '../../src/directives/search';
-import {emitter, SEARCH_CHANGED} from '../../src/events';
+import {SEARCH_CHANGED} from '../../src/events';
+import {emitter} from 'smart-table-events';
 
 function fakeTable () {
   const table = emitter();
@@ -19,8 +20,7 @@ export default zora()
   })
   .test('search directive should call table search method passing the appropriate argument', function * (t) {
     const table = fakeTable();
-    const dir = search({table});
+    const dir = search({table, scope: ['foo', 'bar.woot']});
     const arg = dir.search(42);
-    t.deepEqual(arg, {value: 42});
+    t.deepEqual(arg, {value: 42, scope: ['foo', 'bar.woot']});
   });
-

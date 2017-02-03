@@ -1,6 +1,7 @@
 import zora from 'zora';
 import sort from '../../src/directives/sort';
-import {emitter, TOGGLE_SORT} from '../../src/events';
+import {TOGGLE_SORT} from '../../src/events';
+import {emitter} from 'smart-table-events';
 
 function fakeTable () {
   const table = emitter();
