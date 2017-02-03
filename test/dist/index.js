@@ -868,6 +868,92 @@ var events = plan$1()
     t.equal(counter, 14);
   });
 
+function pointer (path) {
+
+  const parts = path.split('.');
+
+  function partial (obj = {}, parts = []) {
+    const p = parts.shift();
+    const current = obj[p];
+    return (current === undefined || parts.length === 0) ?
+      current : partial(current, parts);
+  }
+
+  function set (target, newTree) {
+    let current = target;
+    const [leaf, ...intermediate] = parts.reverse();
+    for (let key of intermediate.reverse()) {
+      if (current[key] === undefined) {
+        current[key] = {};
+        current = current[key];
+      }
+    }
+    current[leaf] = Object.assign(current[leaf] || {}, newTree);
+    return target;
+  }
+
+  return {
+    get(target){
+      return partial(target, [...parts])
+    },
+    set
+  }
+}
+
+var search$1 = function (searchConf = {}) {
+  const {value, scope = []} = searchConf;
+  const searchPointers = scope.map(field => pointer(field).get);
+  if (!scope.length || !value) {
+    return array => array;
+  } else {
+    return array => array.filter(item => searchPointers.some(p => String(p(item)).includes(String(value))))
+  }
+};
+
+var search = plan$1()
+  .test('full text search on all values (flat object)', function * (t) {
+    const collection = [
+      {a: 'woo', b: 'foot'},
+      {a: 'foo', b: 'w'},
+      {a: 'foo', b: 'b'},
+    ];
+    const output = search$1({value: 'w', scope: ['a', 'b']})(collection);
+    t.deepEqual(output, [
+      {a: 'woo', b: 'foot'},
+      {a: 'foo', b: 'w'}
+    ]);
+  })
+  .test('full text search on all values (nested object)', function * (t) {
+    const collection = [
+      {a: 'woo', b: {c: 'foot'}},
+      {a: 'foo', b: {c: 'w'}},
+      {a: 'foo', b: {c: 'b'}},
+    ];
+    const output = search$1({value: 'w', scope: ['a', 'b.c']})(collection);
+    t.deepEqual(output, [
+      {"a": "woo", "b": {"c": "foot"}},
+      {"a": "foo", "b": {"c": "w"}}
+    ]);
+  })
+  .test('full text search: do nothing when no scope is provided', function * (t) {
+    const collection = [
+      {a: 'woo', b: 'foot'},
+      {a: 'foo', b: 'w'},
+      {a: 'foo', b: 'b'},
+    ];
+    const output = search$1({value: 'w'})(collection);
+    t.deepEqual(output, collection);
+  })
+  .test('full text search: do nothing when no value is provided', function * (t) {
+    const collection = [
+      {a: 'woo', b: 'foot'},
+      {a: 'foo', b: 'w'},
+      {a: 'foo', b: 'b'},
+    ];
+    const output = search$1({value: '', scope:['a']})(collection);
+    t.deepEqual(output, collection);
+  });
+
 function sliceFactory ({page = 1, size} = {}) {
   return function sliceFunction (array = []) {
     const actualSize = size || array.length;
@@ -921,38 +1007,6 @@ function tap$1 (fn) {
   return arg => {
     fn(arg);
     return arg;
-  }
-}
-
-function pointer (path) {
-
-  const parts = path.split('.');
-
-  function partial (obj = {}, parts = []) {
-    const p = parts.shift();
-    const current = obj[p];
-    return (current === undefined || parts.length === 0) ?
-      current : partial(current, parts);
-  }
-
-  function set (target, newTree) {
-    let current = target;
-    const [leaf, ...intermediate] = parts.reverse();
-    for (let key of intermediate.reverse()) {
-      if (current[key] === undefined) {
-        current[key] = {};
-        current = current[key];
-      }
-    }
-    current[leaf] = Object.assign(current[leaf] || {}, newTree);
-    return target;
-  }
-
-  return {
-    get(target){
-      return partial(target, [...parts])
-    },
-    set
   }
 }
 
@@ -1066,13 +1120,6 @@ function filter (filter) {
   return (array) => array.filter(filterPredicate);
 }
 
-var search = function (searchConf = {}) {
-  const {value} = searchConf;
-  return (array) => {
-    return value ? array.filter(item => JSON.stringify(item).toLowerCase().includes(value)) : array
-  };
-};
-
 function curriedPointer (path) {
   const {get, set} = pointer(path);
   return {get, set: curry(set)};
@@ -1160,7 +1207,7 @@ var table$1 = function ({
 var tableFactory = function ({
   sortFactory: sortFactory$$1 = sortFactory,
   filterFactory = filter,
-  searchFactory = search,
+  searchFactory = search$1,
   tableState = {sort: {}, slice: {page: 1}, filter: {}, search: {}},
   data = []
 }, ...tableDirectives) {
@@ -1241,7 +1288,7 @@ var filterDirective = plan$1()
 
 const searchListener = proxyListener({[SEARCH_CHANGED]: 'onSearchChange'});
 
-var search$1 = function ({table}) {
+var search$2 = function ({table}) {
   return Object.assign(
     searchListener({emitter: table}),
     {
@@ -1261,14 +1308,14 @@ var searchDirective = plan$1()
   .test('search directive should be able to register listener', function * (t) {
     let counter = 0;
     const table = fakeTable$1();
-    const dir = search$1({table});
+    const dir = search$2({table});
     dir.onSearchChange(() => counter++);
     table.dispatch(SEARCH_CHANGED);
     t.equal(counter, 1, 'should have updated the counter');
   })
   .test('search directive should call table search method passing the appropriate argument', function * (t) {
     const table = fakeTable$1();
-    const dir = search$1({table});
+    const dir = search$2({table});
     const arg = dir.search(42);
     t.deepEqual(arg, {value: 42});
   });
@@ -1692,6 +1739,7 @@ var tableDirective = plan$1()
 plan$1()
   .test(events)
   .test(slice$1)
+  .test(search)
   .test(table)
   .test(filterDirective)
   .test(searchDirective)
