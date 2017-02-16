@@ -24,9 +24,7 @@ function curry (fn, arityLeft) {
   };
 }
 
-function apply (fn) {
-  return (...args) => fn(...args);
-}
+
 
 function tap (fn) {
   return arg => {
@@ -314,18 +312,25 @@ var table$2 = function ({
     }, processingDelay);
   };
 
-  const tableOperation = (pter, ev) => apply(compose(
+  const updateTableState = curry((pter, ev, newPartialState) => compose(
     safeAssign(pter.get(tableState)),
     tap(dispatch(ev)),
-    pter.set(tableState),
-    () => table.exec()
-  ));
+    pter.set(tableState)
+  )(newPartialState));
+
+  const resetToFirstPage = () => updateTableState(slicePointer, PAGE_CHANGED, {page: 1});
+
+  const tableOperation = (pter, ev) => compose(
+    updateTableState(pter, ev),
+    resetToFirstPage,
+    () => table.exec() // we wrap within a function so table.exec can be overwritten (when using with a server for example)
+  );
 
   const api = {
     sort: tableOperation(sortPointer, TOGGLE_SORT),
-    slice: tableOperation(slicePointer, PAGE_CHANGED),
     filter: tableOperation(filterPointer, FILTER_CHANGED),
     search: tableOperation(searchPointer, SEARCH_CHANGED),
+    slice: compose(updateTableState(slicePointer, PAGE_CHANGED), () => table.exec()),
     exec,
     eval(state = tableState){
       return Promise.resolve()
@@ -402,7 +407,7 @@ var searchDirective = function ({table, scope = []}) {
     });
 };
 
-const sliceListener = proxyListener({[PAGE_CHANGED]: 'onPageChange'});
+const sliceListener = proxyListener({[PAGE_CHANGED]: 'onPageChange', [SUMMARY_CHANGED]: 'onSummaryChange'});
 
 var sliceDirective = function ({table, size, page = 1}) {
 
@@ -424,11 +429,10 @@ var sliceDirective = function ({table, size, page = 1}) {
     }
   }, sliceListener({emitter: table}));
 
-  directive.onPageChange(({page:p, size:s}) => {
+  directive.onSummaryChange(({page:p, size:s}) => {
     currentPage = p;
     currentSize = s;
   });
-
 
   return directive;
 };

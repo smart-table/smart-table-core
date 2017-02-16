@@ -980,18 +980,25 @@ var table$1 = function ({
     }, processingDelay);
   };
 
-  const tableOperation = (pter, ev) => compose(
+  const updateTableState = curry((pter, ev, newPartialState) => compose(
     safeAssign(pter.get(tableState)),
     tap$1(dispatch(ev)),
-    pter.set(tableState),
-    () => table.exec()
+    pter.set(tableState)
+  )(newPartialState));
+
+  const resetToFirstPage = () => updateTableState(slicePointer, PAGE_CHANGED, {page: 1});
+
+  const tableOperation = (pter, ev) => compose(
+    updateTableState(pter, ev),
+    resetToFirstPage,
+    () => table.exec() // we wrap within a function so table.exec can be overwritten (when using with a server for example)
   );
 
   const api = {
     sort: tableOperation(sortPointer, TOGGLE_SORT),
-    slice: tableOperation(slicePointer, PAGE_CHANGED),
     filter: tableOperation(filterPointer, FILTER_CHANGED),
     search: tableOperation(searchPointer, SEARCH_CHANGED),
+    slice: compose(updateTableState(slicePointer, PAGE_CHANGED), () => table.exec()),
     exec,
     eval(state = tableState){
       return Promise.resolve()
@@ -1133,7 +1140,7 @@ var searchDirective = plan$1()
     t.deepEqual(arg, {value: 42, scope: ['foo', 'bar.woot']});
   });
 
-const sliceListener = proxyListener({[PAGE_CHANGED]: 'onPageChange'});
+const sliceListener = proxyListener({[PAGE_CHANGED]: 'onPageChange', [SUMMARY_CHANGED]: 'onSummaryChange'});
 
 var slice$2 = function ({table, size, page = 1}) {
 
@@ -1155,11 +1162,10 @@ var slice$2 = function ({table, size, page = 1}) {
     }
   }, sliceListener({emitter: table}));
 
-  directive.onPageChange(({page:p, size:s}) => {
+  directive.onSummaryChange(({page:p, size:s}) => {
     currentPage = p;
     currentSize = s;
   });
-
 
   return directive;
 };
@@ -1171,12 +1177,20 @@ function fakeTable$2 () {
 }
 
 var sliceDirective = plan$1()
-  .test('slice directive should be able to register listener', function * (t) {
+  .test('slice directive should be able to register listener to PAGE_CHANGED event', function * (t) {
     let counter = 0;
     const table = fakeTable$2();
     const dir = slice$2({table});
     dir.onPageChange(() => counter++);
     table.dispatch(PAGE_CHANGED, {size: 25, page: 1});
+    t.equal(counter, 1, 'should have updated the counter');
+  })
+  .test('slice directive should be able to register listener to SUMMARY_CHANGED event', function * (t) {
+    let counter = 0;
+    const table = fakeTable$2();
+    const dir = slice$2({table});
+    dir.onSummaryChange(() => counter++);
+    table.dispatch(SUMMARY_CHANGED, {size: 25, page: 1});
     t.equal(counter, 1, 'should have updated the counter');
   })
   .test('slice directive should call table slice method with the given page', function * (t) {
@@ -1330,13 +1344,16 @@ var tableDirective = plan$1()
     table.dispatch(DISPLAY_CHANGED, 'foo');
     t.equal(displayed, 'foo');
   })
-  .test('table directive: sort should dispatch the mutating sort state', function * (t) {
+  .test('table directive: sort should dispatch the mutated sort state', function * (t) {
     let sortState = null;
+    let sliceState = null;
     const table = tableFactory({});
     table.on(TOGGLE_SORT, arg => sortState = arg);
+    table.on(PAGE_CHANGED, arg => sliceState = arg);
     const newState = {direction: 'asc', pointer: 'foo.bar'};
     table.sort(newState);
     t.deepEqual(sortState, newState);
+    t.deepEqual(sliceState, {page: 1}, 'should have reset to first page');
   })
   .test('table directive: sort should trigger an execution with the new state', function * (t) {
     const table = tableFactory({}, function ({tableState}) {
@@ -1349,7 +1366,7 @@ var tableDirective = plan$1()
     const newState = table.sort({direction: 'asc', pointer: 'foo.bar'});
     t.deepEqual(newState, {slice: {page: 1}, filter: {}, search: {}, sort: {direction: 'asc', pointer: 'foo.bar'}});
   })
-  .test('table directive: slice should dispatch the mutating slice state', function * (t) {
+  .test('table directive: slice should dispatch the mutated slice state', function * (t) {
     let sliceState = null;
     const table = tableFactory({});
     table.on(PAGE_CHANGED, arg => sliceState = arg);
@@ -1368,13 +1385,16 @@ var tableDirective = plan$1()
     const newState = table.slice({page: 4, size: 12});
     t.deepEqual(newState, {"sort": {}, "slice": {"page": 4, "size": 12}, "filter": {}, "search": {}});
   })
-  .test('table directive: filter should dispatch the mutating filter state', function * (t) {
+  .test('table directive: filter should dispatch the mutated filter state', function * (t) {
     let filterState = null;
+    let sliceState = null;
     const table = tableFactory({});
     table.on(FILTER_CHANGED, arg => filterState = arg);
+    table.on(PAGE_CHANGED, arg => sliceState = arg);
     const newState = {foo: [{value: 'bar'}]};
     table.filter(newState);
     t.deepEqual(filterState, newState);
+    t.deepEqual(sliceState, {page: 1}, 'should have reset the page');
   })
   .test('table directive: filter should trigger an execution with the new state', function * (t) {
     const table = tableFactory({}, function ({tableState}) {
@@ -1388,13 +1408,16 @@ var tableDirective = plan$1()
     t.deepEqual(newState, {"sort": {}, "slice": {"page": 1}, "filter": {"foo": [{"value": "bar"}]}, "search": {}}
     );
   })
-  .test('table directive: search should dispatch the mutating search state', function * (t) {
+  .test('table directive: search should dispatch the mutated search state', function * (t) {
     let searchState = null;
+    let sliceState = null;
     const table = tableFactory({});
     table.on(SEARCH_CHANGED, arg => searchState = arg);
+    table.on(PAGE_CHANGED, arg => sliceState = arg);
     const newState = {value: 'foo'};
     table.search(newState);
     t.deepEqual(searchState, newState);
+    t.deepEqual(sliceState, {page: 1}, 'should have reset to the first page');
   })
   .test('table directive: search should trigger an execution with the new state', function * (t) {
     const table = tableFactory({}, function ({tableState}) {

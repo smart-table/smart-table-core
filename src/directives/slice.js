@@ -1,7 +1,7 @@
-import {PAGE_CHANGED} from '../events';
+import {PAGE_CHANGED, SUMMARY_CHANGED} from '../events';
 import {proxyListener} from 'smart-table-events';
 
-const sliceListener = proxyListener({[PAGE_CHANGED]: 'onPageChange'});
+const sliceListener = proxyListener({[PAGE_CHANGED]: 'onPageChange', [SUMMARY_CHANGED]: 'onSummaryChange'});
 
 export default function ({table, size, page = 1}) {
 
@@ -23,11 +23,10 @@ export default function ({table, size, page = 1}) {
     }
   }, sliceListener({emitter: table}));
 
-  directive.onPageChange(({page:p, size:s}) => {
+  directive.onSummaryChange(({page:p, size:s}) => {
     currentPage = p;
     currentSize = s;
   });
-
 
   return directive;
 }
