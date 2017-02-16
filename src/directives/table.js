@@ -1,5 +1,5 @@
 import slice from '../slice';
-import {curry, tap, compose, apply} from 'smart-table-operators';
+import {curry, tap, compose} from 'smart-table-operators';
 import pointer from 'smart-table-json-pointer';
 import {emitter} from 'smart-table-events';
 import sliceFactory from '../slice';
@@ -64,12 +64,12 @@ export default function ({
     }, processingDelay);
   };
 
-  const tableOperation = (pter, ev) => apply(compose(
+  const tableOperation = (pter, ev) => compose(
     safeAssign(pter.get(tableState)),
     tap(dispatch(ev)),
     pter.set(tableState),
     () => table.exec()
-  ));
+  );
 
   const api = {
     sort: tableOperation(sortPointer, TOGGLE_SORT),

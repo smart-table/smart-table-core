@@ -700,9 +700,7 @@ function curry (fn, arityLeft) {
   };
 }
 
-function apply (fn) {
-  return (...args) => fn(...args);
-}
+
 
 function tap$1 (fn) {
   return arg => {
@@ -982,12 +980,12 @@ var table$1 = function ({
     }, processingDelay);
   };
 
-  const tableOperation = (pter, ev) => apply(compose(
+  const tableOperation = (pter, ev) => compose(
     safeAssign(pter.get(tableState)),
     tap$1(dispatch(ev)),
     pter.set(tableState),
     () => table.exec()
-  ));
+  );
 
   const api = {
     sort: tableOperation(sortPointer, TOGGLE_SORT),
