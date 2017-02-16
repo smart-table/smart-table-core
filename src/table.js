@@ -10,13 +10,17 @@ export default function ({
   tableState = {sort: {}, slice: {page: 1}, filter: {}, search: {}},
   data = []
 }, ...tableDirectives) {
+
+  const coreTable = table({sortFactory, filterFactory, tableState, data, searchFactory});
+
   return tableDirectives.reduce((accumulator, newdir) => {
     return Object.assign(accumulator, newdir({
       sortFactory,
       filterFactory,
       searchFactory,
       tableState,
-      data
+      data,
+      table: coreTable
     }));
-  }, table({sortFactory, filterFactory, tableState, data, searchFactory}));
+  }, coreTable);
 }

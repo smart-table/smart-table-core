@@ -1023,15 +1023,19 @@ var tableFactory = function ({
   tableState = {sort: {}, slice: {page: 1}, filter: {}, search: {}},
   data = []
 }, ...tableDirectives) {
+
+  const coreTable = table$1({sortFactory: sortFactory$$1, filterFactory, tableState, data, searchFactory});
+
   return tableDirectives.reduce((accumulator, newdir) => {
     return Object.assign(accumulator, newdir({
       sortFactory: sortFactory$$1,
       filterFactory,
       searchFactory,
       tableState,
-      data
+      data,
+      table: coreTable
     }));
-  }, table$1({sortFactory: sortFactory$$1, filterFactory, tableState, data, searchFactory}));
+  }, coreTable);
 };
 
 var table = plan$1()

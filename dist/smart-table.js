@@ -178,10 +178,13 @@ function filter$1 (filter) {
 }
 
 var search$1 = function (searchConf = {}) {
-  const {value} = searchConf;
-  return (array) => {
-    return value ? array.filter(item => JSON.stringify(item).toLowerCase().includes(value)) : array
-  };
+  const {value, scope = []} = searchConf;
+  const searchPointers = scope.map(field => pointer(field).get);
+  if (!scope.length || !value) {
+    return array => array;
+  } else {
+    return array => array.filter(item => searchPointers.some(p => String(p(item)).includes(String(value))))
+  }
 };
 
 function sliceFactory ({page = 1, size} = {}) {
@@ -191,15 +194,6 @@ function sliceFactory ({page = 1, size} = {}) {
     return array.slice(offset, offset + actualSize);
   };
 }
-
-const TOGGLE_SORT = 'TOGGLE_SORT';
-const DISPLAY_CHANGED = 'DISPLAY_CHANGED';
-const PAGE_CHANGED = 'CHANGE_PAGE';
-const EXEC_CHANGED = 'EXEC_STARTED';
-const FILTER_CHANGED = 'FILTER_CHANGED';
-const SUMMARY_CHANGED = 'SUMMARY_CHANGED';
-const SEARCH_CHANGED = 'SEARCH_CHANGED';
-const EXEC_ERROR = 'EXEC_ERROR';
 
 function emitter () {
 
@@ -260,6 +254,15 @@ function proxyListener (eventMap) {
     });
   }
 }
+
+const TOGGLE_SORT = 'TOGGLE_SORT';
+const DISPLAY_CHANGED = 'DISPLAY_CHANGED';
+const PAGE_CHANGED = 'CHANGE_PAGE';
+const EXEC_CHANGED = 'EXEC_STARTED';
+const FILTER_CHANGED = 'FILTER_CHANGED';
+const SUMMARY_CHANGED = 'SUMMARY_CHANGED';
+const SEARCH_CHANGED = 'SEARCH_CHANGED';
+const EXEC_ERROR = 'EXEC_ERROR';
 
 function curriedPointer (path) {
   const {get, set} = pointer(path);
@@ -352,15 +355,19 @@ var table$1 = function ({
   tableState = {sort: {}, slice: {page: 1}, filter: {}, search: {}},
   data = []
 }, ...tableDirectives) {
+
+  const coreTable = table$2({sortFactory: sortFactory$$1, filterFactory, tableState, data, searchFactory});
+
   return tableDirectives.reduce((accumulator, newdir) => {
     return Object.assign(accumulator, newdir({
       sortFactory: sortFactory$$1,
       filterFactory,
       searchFactory,
       tableState,
-      data
+      data,
+      table: coreTable
     }));
-  }, table$2({sortFactory: sortFactory$$1, filterFactory, tableState, data, searchFactory}));
+  }, coreTable);
 };
 
 const filterListener = proxyListener({[FILTER_CHANGED]: 'onFilterChange'});
@@ -386,12 +393,11 @@ var filterDirective = function ({table, pointer, operator = 'includes', type = '
 
 const searchListener = proxyListener({[SEARCH_CHANGED]: 'onSearchChange'});
 
-var searchDirective = function ({table}) {
+var searchDirective = function ({table, scope = []}) {
   return Object.assign(
-    searchListener({emitter: table}),
-    {
+    searchListener({emitter: table}), {
       search(input){
-        return table.search({value: input});
+        return table.search({value: input, scope});
       }
     });
 };

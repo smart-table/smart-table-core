@@ -14,7 +14,6 @@ import {
   EXEC_ERROR
 } from '../events';
 
-
 function curriedPointer (path) {
   const {get, set} = pointer(path);
   return {get, set: curry(set)};
