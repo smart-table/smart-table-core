@@ -347,6 +347,9 @@ var table$2 = function ({
     },
     onDisplayChange(fn){
       table.on(DISPLAY_CHANGED, fn);
+    },
+    getTableState(){
+      return Object.assign({}, tableState)
     }
   };
 

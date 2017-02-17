@@ -1015,6 +1015,9 @@ var table$1 = function ({
     },
     onDisplayChange(fn){
       table.on(DISPLAY_CHANGED, fn);
+    },
+    getTableState(){
+      return Object.assign({}, tableState)
     }
   };
 
