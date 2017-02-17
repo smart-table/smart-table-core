@@ -34,6 +34,7 @@
     "smart-table-events": "^1.0.0",
     "smart-table-filter": "^1.0.0",
     "smart-table-json-pointer": "^1.0.1",
+    "smart-table-operators": "^2.0.0",
     "smart-table-search": "^1.0.1",
     "smart-table-sort": "^1.0.0"
   }
