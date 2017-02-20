@@ -67,8 +67,8 @@ graceful-fs@^4.1.2:
   resolved "https://registry.yarnpkg.com/graceful-fs/-/graceful-fs-4.1.11.tgz#0e8bdfe4d1ddb8854d64e04ea7c00e2a026e5658"
 
 hosted-git-info@^2.1.4:
-  version "2.1.5"
-  resolved "https://registry.yarnpkg.com/hosted-git-info/-/hosted-git-info-2.1.5.tgz#0ba81d90da2e25ab34a332e6ec77936e1598118b"
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/hosted-git-info/-/hosted-git-info-2.2.0.tgz#7a0d097863d886c0fabbdcd37bf1758d8becf8a5"
 
 indent-string@^2.1.0:
   version "2.1.0"
@@ -261,8 +261,8 @@ smart-table-json-pointer@^1.0.1:
   resolved "https://registry.yarnpkg.com/smart-table-json-pointer/-/smart-table-json-pointer-1.0.1.tgz#8927850521a49f4b74c778c2e1686a23ec21f742"
 
 smart-table-operators@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/smart-table-operators/-/smart-table-operators-2.0.0.tgz#f0c2550d7368fcf507db8bca1c9d4995159f219d"
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/smart-table-operators/-/smart-table-operators-2.0.1.tgz#73a30c464b10f449a8de4ef4e6806394ac7f7d86"
 
 smart-table-search@^1.0.1:
   version "1.0.1"

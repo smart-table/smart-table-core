@@ -15,7 +15,8 @@ function compose (first, ...fns) {
 function curry (fn, arityLeft) {
   const arity = arityLeft || fn.length;
   return (...args) => {
-    if (arity === args.length) {
+    const argLength = args.length || 1;
+    if (arity === argLength) {
       return fn(...args);
     } else {
       const func = (...moreArgs) => fn(...args, ...moreArgs);
