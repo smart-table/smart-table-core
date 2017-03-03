@@ -7,6 +7,7 @@ export default function ({table, size, page = 1}) {
 
   let currentPage = page;
   let currentSize = size;
+  let itemListLength;
 
   const directive = Object.assign({
     selectPage(p){
@@ -20,12 +21,19 @@ export default function ({table, size, page = 1}) {
     },
     changePageSize(size){
       return table.slice({page: 1, size});
+    },
+    isPreviousPageEnabled(){
+      return currentPage > 1
+    },
+    isNextPageEnabled(){
+      return Math.ceil(itemListLength / currentSize) > currentPage;
     }
   }, sliceListener({emitter: table}));
 
-  directive.onSummaryChange(({page:p, size:s}) => {
+  directive.onSummaryChange(({page:p, size:s, filteredCount}) => {
     currentPage = p;
     currentSize = s;
+    itemListLength = filteredCount;
   });
 
   return directive;

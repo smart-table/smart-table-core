@@ -35,7 +35,7 @@ export default function ({
   const safeAssign = curry((base, extension) => Object.assign({}, base, extension));
   const dispatch = curry(table.dispatch.bind(table), 2);
 
-  const createSummary = (filtered) => {
+  const dispatchSummary = (filtered) => {
     dispatch(SUMMARY_CHANGED, {
       page: tableState.slice.page,
       size: tableState.slice.size,
@@ -51,7 +51,7 @@ export default function ({
         const searchFunc = searchFactory(searchPointer.get(tableState));
         const sortFunc = sortFactory(sortPointer.get(tableState));
         const sliceFunc = sliceFactory(slicePointer.get(tableState));
-        const execFunc = compose(filterFunc, searchFunc, tap(createSummary), sortFunc, sliceFunc);
+        const execFunc = compose(filterFunc, searchFunc, tap(dispatchSummary), sortFunc, sliceFunc);
         const displayed = execFunc(data);
         table.dispatch(DISPLAY_CHANGED, displayed.map(d => {
           return {index: data.indexOf(d), value: d};

@@ -952,7 +952,7 @@ var table$1 = function ({
   const safeAssign = curry((base, extension) => Object.assign({}, base, extension));
   const dispatch = curry(table.dispatch.bind(table), 2);
 
-  const createSummary = (filtered) => {
+  const dispatchSummary = (filtered) => {
     dispatch(SUMMARY_CHANGED, {
       page: tableState.slice.page,
       size: tableState.slice.size,
@@ -968,7 +968,7 @@ var table$1 = function ({
         const searchFunc = searchFactory(searchPointer.get(tableState));
         const sortFunc = sortFactory(sortPointer.get(tableState));
         const sliceFunc = sliceFactory(slicePointer.get(tableState));
-        const execFunc = compose(filterFunc, searchFunc, tap$1(createSummary), sortFunc, sliceFunc);
+        const execFunc = compose(filterFunc, searchFunc, tap$1(dispatchSummary), sortFunc, sliceFunc);
         const displayed = execFunc(data);
         table.dispatch(DISPLAY_CHANGED, displayed.map(d => {
           return {index: data.indexOf(d), value: d};
@@ -1150,6 +1150,7 @@ var slice$2 = function ({table, size, page = 1}) {
 
   let currentPage = page;
   let currentSize = size;
+  let itemListLength;
 
   const directive = Object.assign({
     selectPage(p){
@@ -1163,12 +1164,19 @@ var slice$2 = function ({table, size, page = 1}) {
     },
     changePageSize(size){
       return table.slice({page: 1, size});
+    },
+    isPreviousPageEnabled(){
+      return currentPage > 1
+    },
+    isNextPageEnabled(){
+      return Math.ceil(itemListLength / currentSize) > currentPage;
     }
   }, sliceListener({emitter: table}));
 
-  directive.onSummaryChange(({page:p, size:s}) => {
+  directive.onSummaryChange(({page:p, size:s, filteredCount}) => {
     currentPage = p;
     currentSize = s;
+    itemListLength = filteredCount;
   });
 
   return directive;
@@ -1223,6 +1231,22 @@ var sliceDirective = plan$1()
     const {page, size} = dir.changePageSize(42);
     t.equal(page, 1, 'should have returned to the first page');
     t.equal(size, 42, 'should have change the page size');
+  })
+  .test('slice directive should tell whether previous page is enabled', function * (t) {
+    const table = fakeTable$2();
+    const dir = slice$2({table});
+    table.dispatch(SUMMARY_CHANGED, {size: 25, page: 1});
+    t.equal(dir.isPreviousPageEnabled(), false);
+    table.dispatch(SUMMARY_CHANGED, {size: 25, page: 2});
+    t.equal(dir.isPreviousPageEnabled(), true);
+  })
+  .test('slice directive should tell whether next page is enabled', function * (t) {
+    const table = fakeTable$2();
+    const dir = slice$2({table});
+    table.dispatch(SUMMARY_CHANGED, {size: 25, page: 3, filteredCount: 100});
+    t.equal(dir.isNextPageEnabled(), true);
+    table.dispatch(SUMMARY_CHANGED, {size: 25, page: 2, filteredCount: 38});
+    t.equal(dir.isNextPageEnabled(), false);
   });
 
 const sortListeners = proxyListener({[TOGGLE_SORT]: 'onSortToggle'});
