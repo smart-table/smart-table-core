@@ -3,32 +3,31 @@ import {proxyListener} from 'smart-table-events';
 
 const sliceListener = proxyListener({[PAGE_CHANGED]: 'onPageChange', [SUMMARY_CHANGED]: 'onSummaryChange'});
 
-export default function ({table, size, page = 1}) {
+export default function ({table}) {
+  let {slice:{page:currentPage, size:currentSize}} = table.getTableState();
+  let itemListLength = table.length;
 
-  let currentPage = page;
-  let currentSize = size;
-  let itemListLength;
-
-  const directive = Object.assign({
+  const api = {
     selectPage(p){
       return table.slice({page: p, size: currentSize});
     },
     selectNextPage(){
-      return this.selectPage(currentPage + 1);
+      return api.selectPage(currentPage + 1);
     },
     selectPreviousPage(){
-      return this.selectPage(currentPage - 1);
+      return api.selectPage(currentPage - 1);
     },
     changePageSize(size){
       return table.slice({page: 1, size});
     },
     isPreviousPageEnabled(){
-      return currentPage > 1
+      return currentPage > 1;
     },
     isNextPageEnabled(){
       return Math.ceil(itemListLength / currentSize) > currentPage;
     }
-  }, sliceListener({emitter: table}));
+  };
+  const directive = Object.assign(api, sliceListener({emitter: table}));
 
   directive.onSummaryChange(({page:p, size:s, filteredCount}) => {
     currentPage = p;

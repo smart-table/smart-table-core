@@ -105,5 +105,13 @@ export default function ({
     }
   };
 
-  return Object.assign(table, api);
+  const instance = Object.assign(table, api);
+
+  Object.defineProperty(instance, 'length', {
+    get(){
+      return data.length;
+    }
+  });
+
+  return instance;
 }

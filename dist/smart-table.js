@@ -197,29 +197,29 @@ function sliceFactory ({page = 1, size} = {}) {
 function emitter () {
 
   const listenersLists = {};
-
-  return {
+  const instance = {
     on(event, ...listeners){
       listenersLists[event] = (listenersLists[event] || []).concat(listeners);
-      return this;
+      return instance;
     },
     dispatch(event, ...args){
       const listeners = listenersLists[event] || [];
       for (let listener of listeners) {
         listener(...args);
       }
-      return this;
+      return instance;
     },
     off(event, ...listeners){
       if (!event) {
-        Object.keys(listenersLists).forEach(ev => this.off(ev));
+        Object.keys(listenersLists).forEach(ev => instance.off(ev));
       } else {
         const list = listenersLists[event] || [];
         listenersLists[event] = listeners.length ? list.filter(listener => !listeners.includes(listener)) : [];
       }
-      return this;
+      return instance;
     }
-  }
+  };
+  return instance;
 }
 
 function proxyListener (eventMap) {
@@ -234,21 +234,19 @@ function proxyListener (eventMap) {
       proxy[method] = function (...listeners) {
         eventListeners[ev] = eventListeners[ev].concat(listeners);
         emitter.on(ev, ...listeners);
-        return this;
+        return proxy;
       };
     }
 
     return Object.assign(proxy, {
       off(ev){
         if (!ev) {
-          Object.keys(eventListeners).forEach(eventName => this.off(eventName));
+          Object.keys(eventListeners).forEach(eventName => proxy.off(eventName));
         }
-
         if (eventListeners[ev]) {
           emitter.off(ev, ...eventListeners[ev]);
         }
-
-        return this;
+        return proxy;
       }
     });
   }
@@ -354,7 +352,15 @@ var table$2 = function ({
     }
   };
 
-  return Object.assign(table, api);
+  const instance = Object.assign(table, api);
+
+  Object.defineProperty(instance, 'length', {
+    get(){
+      return data.length;
+    }
+  });
+
+  return instance;
 };
 
 var table$1 = function ({
@@ -413,32 +419,31 @@ var searchDirective = function ({table, scope = []}) {
 
 const sliceListener = proxyListener({[PAGE_CHANGED]: 'onPageChange', [SUMMARY_CHANGED]: 'onSummaryChange'});
 
-var sliceDirective = function ({table, size, page = 1}) {
+var sliceDirective = function ({table}) {
+  let {slice:{page:currentPage, size:currentSize}} = table.getTableState();
+  let itemListLength = table.length;
 
-  let currentPage = page;
-  let currentSize = size;
-  let itemListLength;
-
-  const directive = Object.assign({
+  const api = {
     selectPage(p){
       return table.slice({page: p, size: currentSize});
     },
     selectNextPage(){
-      return this.selectPage(currentPage + 1);
+      return api.selectPage(currentPage + 1);
     },
     selectPreviousPage(){
-      return this.selectPage(currentPage - 1);
+      return api.selectPage(currentPage - 1);
     },
     changePageSize(size){
       return table.slice({page: 1, size});
     },
     isPreviousPageEnabled(){
-      return currentPage > 1
+      return currentPage > 1;
     },
     isNextPageEnabled(){
       return Math.ceil(itemListLength / currentSize) > currentPage;
     }
-  }, sliceListener({emitter: table}));
+  };
+  const directive = Object.assign(api, sliceListener({emitter: table}));
 
   directive.onSummaryChange(({page:p, size:s, filteredCount}) => {
     currentPage = p;

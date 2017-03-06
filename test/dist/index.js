@@ -865,29 +865,29 @@ var search = function (searchConf = {}) {
 function emitter () {
 
   const listenersLists = {};
-
-  return {
+  const instance = {
     on(event, ...listeners){
       listenersLists[event] = (listenersLists[event] || []).concat(listeners);
-      return this;
+      return instance;
     },
     dispatch(event, ...args){
       const listeners = listenersLists[event] || [];
       for (let listener of listeners) {
         listener(...args);
       }
-      return this;
+      return instance;
     },
     off(event, ...listeners){
       if (!event) {
-        Object.keys(listenersLists).forEach(ev => this.off(ev));
+        Object.keys(listenersLists).forEach(ev => instance.off(ev));
       } else {
         const list = listenersLists[event] || [];
         listenersLists[event] = listeners.length ? list.filter(listener => !listeners.includes(listener)) : [];
       }
-      return this;
+      return instance;
     }
-  }
+  };
+  return instance;
 }
 
 function proxyListener (eventMap) {
@@ -902,21 +902,19 @@ function proxyListener (eventMap) {
       proxy[method] = function (...listeners) {
         eventListeners[ev] = eventListeners[ev].concat(listeners);
         emitter.on(ev, ...listeners);
-        return this;
+        return proxy;
       };
     }
 
     return Object.assign(proxy, {
       off(ev){
         if (!ev) {
-          Object.keys(eventListeners).forEach(eventName => this.off(eventName));
+          Object.keys(eventListeners).forEach(eventName => proxy.off(eventName));
         }
-
         if (eventListeners[ev]) {
           emitter.off(ev, ...eventListeners[ev]);
         }
-
-        return this;
+        return proxy;
       }
     });
   }
@@ -1022,7 +1020,15 @@ var table$1 = function ({
     }
   };
 
-  return Object.assign(table, api);
+  const instance = Object.assign(table, api);
+
+  Object.defineProperty(instance, 'length', {
+    get(){
+      return data.length;
+    }
+  });
+
+  return instance;
 };
 
 var tableFactory = function ({
@@ -1146,32 +1152,31 @@ var searchDirective = plan$1()
 
 const sliceListener = proxyListener({[PAGE_CHANGED]: 'onPageChange', [SUMMARY_CHANGED]: 'onSummaryChange'});
 
-var slice$2 = function ({table, size, page = 1}) {
+var slice$2 = function ({table}) {
+  let {slice:{page:currentPage, size:currentSize}} = table.getTableState();
+  let itemListLength = table.length;
 
-  let currentPage = page;
-  let currentSize = size;
-  let itemListLength;
-
-  const directive = Object.assign({
+  const api = {
     selectPage(p){
       return table.slice({page: p, size: currentSize});
     },
     selectNextPage(){
-      return this.selectPage(currentPage + 1);
+      return api.selectPage(currentPage + 1);
     },
     selectPreviousPage(){
-      return this.selectPage(currentPage - 1);
+      return api.selectPage(currentPage - 1);
     },
     changePageSize(size){
       return table.slice({page: 1, size});
     },
     isPreviousPageEnabled(){
-      return currentPage > 1
+      return currentPage > 1;
     },
     isNextPageEnabled(){
       return Math.ceil(itemListLength / currentSize) > currentPage;
     }
-  }, sliceListener({emitter: table}));
+  };
+  const directive = Object.assign(api, sliceListener({emitter: table}));
 
   directive.onSummaryChange(({page:p, size:s, filteredCount}) => {
     currentPage = p;
@@ -1182,8 +1187,11 @@ var slice$2 = function ({table, size, page = 1}) {
   return directive;
 };
 
-function fakeTable$2 () {
+function fakeTable$2 (slice = {}) {
   const table = emitter();
+  table.getTableState = () => ({
+    slice
+  });
   table.slice = input => input;
   return table;
 }
@@ -1206,21 +1214,21 @@ var sliceDirective = plan$1()
     t.equal(counter, 1, 'should have updated the counter');
   })
   .test('slice directive should call table slice method with the given page', function * (t) {
-    const table = fakeTable$2();
-    const dir = slice$2({table, size: 25, page: 4});
+    const table = fakeTable$2({size: 25, page: 4});
+    const dir = slice$2({table});
     const arg = dir.selectPage(2);
     t.deepEqual(arg, {page: 2, size: 25});
   })
   .test('slice directive should call table slice method with the next page arguments', function * (t) {
-    const table = fakeTable$2();
-    const dir = slice$2({table, size: 21, page: 4});
+    const table = fakeTable$2({size: 21, page: 4});
+    const dir = slice$2({table});
     const {page, size} = dir.selectNextPage();
     t.equal(page, 5, 'should be the next page');
     t.equal(size, 21, 'should keep the current page size');
   })
   .test('slice directive should call table slice method with the previous page arguments', function * (t) {
-    const table = fakeTable$2();
-    const dir = slice$2({table, size: 26, page: 9});
+    const table = fakeTable$2({size: 26, page: 9});
+    const dir = slice$2({table});
     const {page, size} = dir.selectPreviousPage();
     t.equal(page, 8, 'should be the previous page');
     t.equal(size, 26, 'should keep the current page size');
