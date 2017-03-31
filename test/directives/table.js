@@ -252,4 +252,19 @@ export default zora()
     yield wait(25);
     t.deepEqual(summary, {"page": 1, "size": 1, "filteredCount": 2}
     );
-  });
+  })
+  .test('getTableState should return a deep copy of the tableState', function * (t) {
+    const tableState = {
+      sort: {pointer: 'foo'},
+      slice: {page: 2, size: 25},
+      search: {value: 'wat', scope: []},
+      filter: {foo: [{value: 'blah'}]}
+    };
+    const table = tableFactory({data: [], tableState});
+    const copy = table.getTableState();
+    t.deepEqual(copy, tableState);
+    t.ok(!Object.is(copy.sort, tableState.sort));
+    t.ok(!Object.is(copy.search, tableState.search));
+    t.ok(!Object.is(copy.filter, tableState.filter));
+    t.ok(!Object.is(copy.slice, tableState.slice));
+  })

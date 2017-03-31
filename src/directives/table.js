@@ -101,7 +101,14 @@ export default function ({
       table.on(DISPLAY_CHANGED, fn);
     },
     getTableState(){
-      return Object.assign({}, tableState)
+      const sort = Object.assign({}, tableState.sort);
+      const search = Object.assign({}, tableState.search);
+      const slice = Object.assign({}, tableState.slice);
+      const filter = {};
+      for (let prop in tableState.filter) {
+        filter[prop] = tableState.filter[prop].map(v => Object.assign({}, v));
+      }
+      return {sort, search, slice, filter};
     }
   };
 
