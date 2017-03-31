@@ -1,6 +1,6 @@
 {
   "name": "smart-table-core",
-  "version": "1.3.2",
+  "version": "1.3.3",
   "description": "smart-core directives",
   "jsnext:main": "index.js",
   "main": "dist/smart-table.js",
