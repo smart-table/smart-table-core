@@ -3,7 +3,7 @@ module.exports = {
   entry: 'index.js',
   dest: 'dist/smart-table.js',
   format: 'umd',
-  plugins: [ node({jsnext:true}) ],
+  plugins: [node({jsnext: true})],
   moduleName: 'smart-table',
-  sourceMap:true
+  sourceMap: true
 };
