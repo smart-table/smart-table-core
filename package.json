@@ -4,7 +4,7 @@
   "description": "smart-core directives",
   "jsnext:main": "index.js",
   "main": "dist/smart-table.js",
-  "module": "dist/smart-table.js",
+  "module": "index.js",
   "scripts": {
     "build": "rollup -c rollup.config.js",
     "build:test": "rollup -c test/rollup.config.js",

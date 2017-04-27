@@ -370,7 +370,7 @@ var table$2 = function ({
   return instance;
 };
 
-var table$1 = function ({
+var tableDirective = function ({
   sortFactory: sortFactory$$1 = sortFactory,
   filterFactory = filter$1,
   searchFactory = search$1,
@@ -506,6 +506,7 @@ const summary = summaryDirective;
 const sort = sortDirective;
 const filter = filterDirective;
 const workingIndicator = workingIndicatorDirective;
+const table = tableDirective;
 
 exports.search = search;
 exports.slice = slice;
@@ -513,7 +514,8 @@ exports.summary = summary;
 exports.sort = sort;
 exports.filter = filter;
 exports.workingIndicator = workingIndicator;
-exports['default'] = table$1;
+exports.table = table;
+exports['default'] = table;
 
 Object.defineProperty(exports, '__esModule', { value: true });
 

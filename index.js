@@ -1,4 +1,4 @@
-import table from './src/table';
+import tableDirective from './src/table';
 import filterDirective from './src/directives/filter';
 import searchDirective from './src/directives/search';
 import sliceDirective from './src/directives/slice';
@@ -12,4 +12,5 @@ export const summary = summaryDirective;
 export const sort = sortDirective;
 export const filter = filterDirective;
 export const workingIndicator = workingIndicatorDirective;
+export const table = tableDirective;
 export default table;
