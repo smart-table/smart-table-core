@@ -27,10 +27,10 @@
   },
   "homepage": "https://github.com/smart-table/smart-table-core#readme",
   "devDependencies": {
-    "rollup": "^0.41.4",
+    "rollup": "^0.43.0",
     "rollup-plugin-buble": "0.15.0",
     "rollup-plugin-node-resolve": "^3.0.0",
-    "rollup-plugin-uglify": "^1.0.2",
+    "rollup-plugin-uglify": "^2.0.1",
     "zora": "^0.3.0"
   },
   "dependencies": {

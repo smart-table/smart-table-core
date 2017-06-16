@@ -3,6 +3,4 @@ import {proxyListener} from 'smart-table-events';
 
 const executionListener = proxyListener({[EXEC_CHANGED]: 'onExecutionChange'});
 
-export default function ({table}) {
-  return executionListener({emitter: table});
-}
+export default ({table}) => executionListener({emitter: table});

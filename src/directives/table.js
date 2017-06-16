@@ -33,7 +33,7 @@ export default function ({
   const searchPointer = curriedPointer('search');
 
   const safeAssign = curry((base, extension) => Object.assign({}, base, extension));
-  const dispatch = curry(table.dispatch.bind(table), 2);
+  const dispatch = curry(table.dispatch, 2);
 
   const dispatchSummary = (filtered) => {
     dispatch(SUMMARY_CHANGED, {

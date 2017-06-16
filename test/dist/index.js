@@ -655,13 +655,11 @@ function plan$1 () {
   });
 }
 
-function sliceFactory ({page = 1, size} = {}) {
-  return function sliceFunction (array = []) {
-    const actualSize = size || array.length;
-    const offset = (page - 1) * actualSize;
-    return array.slice(offset, offset + actualSize);
-  };
-}
+var sliceFactory = ({page = 1, size} = {}) => (array = []) => {
+  const actualSize = size || array.length;
+  const offset = (page - 1) * actualSize;
+  return array.slice(offset, offset + actualSize);
+};
 
 var slice$1 = plan$1()
   .test('slice: get a page with specified size', function * (t) {
@@ -948,7 +946,7 @@ var table$1 = function ({
   const searchPointer = curriedPointer('search');
 
   const safeAssign = curry((base, extension) => Object.assign({}, base, extension));
-  const dispatch = curry(table.dispatch.bind(table), 2);
+  const dispatch = curry(table.dispatch, 2);
 
   const dispatchSummary = (filtered) => {
     dispatch(SUMMARY_CHANGED, {
@@ -1339,11 +1337,9 @@ var sortDirective = plan$1()
   })
 ;
 
-const executionListener = proxyListener({[SUMMARY_CHANGED]: 'onSummaryChange'});
+const summaryListener = proxyListener({[SUMMARY_CHANGED]: 'onSummaryChange'});
 
-var summary = function ({table}) {
-  return executionListener({emitter: table});
-};
+var summary = ({table}) => summaryListener({emitter: table});
 
 var summaryDirective = plan$1()
   .test('summary directive should be able to register listener', function * (t) {
@@ -1355,11 +1351,9 @@ var summaryDirective = plan$1()
     t.equal(counter, 1, 'should have updated the counter');
   });
 
-const executionListener$1 = proxyListener({[EXEC_CHANGED]: 'onExecutionChange'});
+const executionListener = proxyListener({[EXEC_CHANGED]: 'onExecutionChange'});
 
-var workingIndicator = function ({table}) {
-  return executionListener$1({emitter: table});
-};
+var workingIndicator = ({table}) => executionListener({emitter: table});
 
 var wokringIndicatorDirective = plan$1()
   .test('summary directive should be able to register listener', function * (t) {
