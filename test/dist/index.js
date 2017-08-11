@@ -330,7 +330,7 @@ var tap = () => function * () {
   }
 };
 
-var zora = () => {
+var plan$1 = () => {
   const tests = [];
   const instance = {
     test(description, spec, opts = {}){
@@ -391,7 +391,7 @@ var sliceFactory = ({page = 1, size} = {}) => (array = []) => {
   return array.slice(offset, offset + actualSize);
 };
 
-var slice = zora()
+var slice = plan$1()
   .test('slice: get a page with specified size', (t) => {
     const input = [1, 2, 3, 4, 5, 6, 7];
     const output = sliceFactory({page: 1, size: 5})(input);
@@ -788,7 +788,7 @@ var tableFactory = function ({
   }, coreTable);
 };
 
-var table = zora()
+var table = plan$1()
   .test('compose table factory', (t) => {
     const data = [];
     const tableState = {};
@@ -836,7 +836,7 @@ function fakeTable () {
   return table;
 }
 
-var filterDirective = zora()
+var filterDirective = plan$1()
   .test('filter directive should be able to register listener', (t) => {
     let counter = 0;
     const table = fakeTable();
@@ -869,7 +869,7 @@ function fakeTable$1 () {
   return table;
 }
 
-var searchDirective = zora()
+var searchDirective = plan$1()
   .test('search directive should be able to register listener', (t) => {
     let counter = 0;
     const table = fakeTable$1();
@@ -931,7 +931,7 @@ function fakeTable$2 (slice = {}) {
   return table;
 }
 
-var sliceDirective = zora()
+var sliceDirective = plan$1()
   .test('slice directive should be able to register listener to PAGE_CHANGED event', (t) => {
     let counter = 0;
     const table = fakeTable$2();
@@ -1025,7 +1025,7 @@ function fakeTable$3 () {
   return table;
 }
 
-var sortDirective = zora()
+var sortDirective = plan$1()
   .test('sort directive should be able to register listener', (t) => {
     let counter = 0;
     const table = fakeTable$3();
@@ -1071,7 +1071,7 @@ const summaryListener = proxyListener({[SUMMARY_CHANGED]: 'onSummaryChange'});
 
 var summary = ({table}) => summaryListener({emitter: table});
 
-var summaryDirective = zora()
+var summaryDirective = plan$1()
   .test('summary directive should be able to register listener', (t) => {
     let counter = 0;
     const table = emitter();
@@ -1085,7 +1085,7 @@ const executionListener = proxyListener({[EXEC_CHANGED]: 'onExecutionChange'});
 
 var workingIndicator = ({table}) => executionListener({emitter: table});
 
-var wokringIndicatorDirective = zora()
+var wokringIndicatorDirective = plan$1()
   .test('summary directive should be able to register listener', (t) => {
     let counter = 0;
     const table = emitter();
@@ -1103,7 +1103,7 @@ function wait (time) {
   });
 }
 
-var tableDirective = zora()
+var tableDirective = plan$1()
   .test('table directive: should be able to register listener on display change', (t) => {
     let displayed = null;
     const table = tableFactory({});
@@ -1354,7 +1354,7 @@ var tableDirective = zora()
     t.ok(!Object.is(copy.slice, tableState.slice));
   });
 
-zora()
+plan$1()
   .test(slice)
   .test(table)
   .test(filterDirective)
