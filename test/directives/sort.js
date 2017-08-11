@@ -10,7 +10,7 @@ function fakeTable () {
 }
 
 export default zora()
-  .test('sort directive should be able to register listener', function * (t) {
+  .test('sort directive should be able to register listener', (t) => {
     let counter = 0;
     const table = fakeTable();
     const dir = sort({table, pointer: 'foo.bar'});
@@ -18,7 +18,7 @@ export default zora()
     table.dispatch(TOGGLE_SORT, {});
     t.equal(counter, 1, 'should have updated the counter');
   })
-  .test('sort directive dual state mode: sequentially change sort direction', function * (t) {
+  .test('sort directive dual state mode: sequentially change sort direction', (t) => {
     const table = fakeTable();
     const dir = sort({table, pointer: 'foo.bar'});
     const arg = dir.toggle();
@@ -28,7 +28,7 @@ export default zora()
     const thirdArg = dir.toggle();
     t.deepEqual(thirdArg, {pointer: 'foo.bar', direction: 'asc'});
   })
-  .test('sort directive cycle mode: sequentially change sort direction', function * (t) {
+  .test('sort directive cycle mode: sequentially change sort direction', (t) => {
     const table = fakeTable();
     const dir = sort({table, pointer: 'foo.bar', cycle: true});
     const arg = dir.toggle();
@@ -40,7 +40,7 @@ export default zora()
     const fourthArg = dir.toggle();
     t.deepEqual(fourthArg, {pointer: 'foo.bar', direction: 'asc'});
   })
-  .test('a directive should reset when it is not concerned by the toggle', function * (t) {
+  .test('a directive should reset when it is not concerned by the toggle', (t) => {
     const table = fakeTable();
     const dir = sort({table, pointer: 'foo.bar'});
     const arg = dir.toggle();

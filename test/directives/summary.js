@@ -5,7 +5,7 @@ import {emitter} from 'smart-table-events';
 import zora from 'zora';
 
 export default zora()
-  .test('summary directive should be able to register listener', function * (t) {
+  .test('summary directive should be able to register listener', (t) => {
     let counter = 0;
     const table = emitter();
     const s = summary({table});

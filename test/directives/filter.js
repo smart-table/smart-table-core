@@ -10,7 +10,7 @@ function fakeTable () {
 }
 
 export default zora()
-  .test('filter directive should be able to register listener', function * (t) {
+  .test('filter directive should be able to register listener', (t) => {
     let counter = 0;
     const table = fakeTable();
     const fd = filter({table, pointer: 'foo'});
@@ -18,7 +18,7 @@ export default zora()
     table.dispatch(FILTER_CHANGED);
     t.equal(counter, 1, 'should have updated the counter');
   })
-  .test('filter directive should call table filter method passing the appropriate argument', function * (t) {
+  .test('filter directive should call table filter method passing the appropriate argument', (t) => {
     const table = fakeTable();
     const fd = filter({table, pointer: 'foo.bar', operator: 'is', type: 'number'});
     const arg = fd.filter(42);

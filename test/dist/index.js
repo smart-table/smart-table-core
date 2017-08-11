@@ -1,243 +1,6 @@
 (function () {
 'use strict';
 
-/**
- * slice() reference.
- */
-
-var slice = Array.prototype.slice;
-
-/**
- * Expose `co`.
- */
-
-var index = co['default'] = co.co = co;
-
-/**
- * Wrap the given generator `fn` into a
- * function that returns a promise.
- * This is a separate function so that
- * every `co()` call doesn't create a new,
- * unnecessary closure.
- *
- * @param {GeneratorFunction} fn
- * @return {Function}
- * @api public
- */
-
-co.wrap = function (fn) {
-  createPromise.__generatorFunction__ = fn;
-  return createPromise;
-  function createPromise() {
-    return co.call(this, fn.apply(this, arguments));
-  }
-};
-
-/**
- * Execute the generator function or a generator
- * and return a promise.
- *
- * @param {Function} fn
- * @return {Promise}
- * @api public
- */
-
-function co(gen) {
-  var ctx = this;
-  var args = slice.call(arguments, 1);
-
-  // we wrap everything in a promise to avoid promise chaining,
-  // which leads to memory leak errors.
-  // see https://github.com/tj/co/issues/180
-  return new Promise(function(resolve, reject) {
-    if (typeof gen === 'function') gen = gen.apply(ctx, args);
-    if (!gen || typeof gen.next !== 'function') return resolve(gen);
-
-    onFulfilled();
-
-    /**
-     * @param {Mixed} res
-     * @return {Promise}
-     * @api private
-     */
-
-    function onFulfilled(res) {
-      var ret;
-      try {
-        ret = gen.next(res);
-      } catch (e) {
-        return reject(e);
-      }
-      next(ret);
-    }
-
-    /**
-     * @param {Error} err
-     * @return {Promise}
-     * @api private
-     */
-
-    function onRejected(err) {
-      var ret;
-      try {
-        ret = gen.throw(err);
-      } catch (e) {
-        return reject(e);
-      }
-      next(ret);
-    }
-
-    /**
-     * Get the next value in the generator,
-     * return a promise.
-     *
-     * @param {Object} ret
-     * @return {Promise}
-     * @api private
-     */
-
-    function next(ret) {
-      if (ret.done) return resolve(ret.value);
-      var value = toPromise.call(ctx, ret.value);
-      if (value && isPromise(value)) return value.then(onFulfilled, onRejected);
-      return onRejected(new TypeError('You may only yield a function, promise, generator, array, or object, '
-        + 'but the following object was passed: "' + String(ret.value) + '"'));
-    }
-  });
-}
-
-/**
- * Convert a `yield`ed value into a promise.
- *
- * @param {Mixed} obj
- * @return {Promise}
- * @api private
- */
-
-function toPromise(obj) {
-  if (!obj) return obj;
-  if (isPromise(obj)) return obj;
-  if (isGeneratorFunction(obj) || isGenerator(obj)) return co.call(this, obj);
-  if ('function' == typeof obj) return thunkToPromise.call(this, obj);
-  if (Array.isArray(obj)) return arrayToPromise.call(this, obj);
-  if (isObject(obj)) return objectToPromise.call(this, obj);
-  return obj;
-}
-
-/**
- * Convert a thunk to a promise.
- *
- * @param {Function}
- * @return {Promise}
- * @api private
- */
-
-function thunkToPromise(fn) {
-  var ctx = this;
-  return new Promise(function (resolve, reject) {
-    fn.call(ctx, function (err, res) {
-      if (err) return reject(err);
-      if (arguments.length > 2) res = slice.call(arguments, 1);
-      resolve(res);
-    });
-  });
-}
-
-/**
- * Convert an array of "yieldables" to a promise.
- * Uses `Promise.all()` internally.
- *
- * @param {Array} obj
- * @return {Promise}
- * @api private
- */
-
-function arrayToPromise(obj) {
-  return Promise.all(obj.map(toPromise, this));
-}
-
-/**
- * Convert an object of "yieldables" to a promise.
- * Uses `Promise.all()` internally.
- *
- * @param {Object} obj
- * @return {Promise}
- * @api private
- */
-
-function objectToPromise(obj){
-  var results = new obj.constructor();
-  var keys = Object.keys(obj);
-  var promises = [];
-  for (var i = 0; i < keys.length; i++) {
-    var key = keys[i];
-    var promise = toPromise.call(this, obj[key]);
-    if (promise && isPromise(promise)) defer(promise, key);
-    else results[key] = obj[key];
-  }
-  return Promise.all(promises).then(function () {
-    return results;
-  });
-
-  function defer(promise, key) {
-    // predefine the key in the result
-    results[key] = undefined;
-    promises.push(promise.then(function (res) {
-      results[key] = res;
-    }));
-  }
-}
-
-/**
- * Check if `obj` is a promise.
- *
- * @param {Object} obj
- * @return {Boolean}
- * @api private
- */
-
-function isPromise(obj) {
-  return 'function' == typeof obj.then;
-}
-
-/**
- * Check if `obj` is a generator.
- *
- * @param {Mixed} obj
- * @return {Boolean}
- * @api private
- */
-
-function isGenerator(obj) {
-  return 'function' == typeof obj.next && 'function' == typeof obj.throw;
-}
-
-/**
- * Check if `obj` is a generator function.
- *
- * @param {Mixed} obj
- * @return {Boolean}
- * @api private
- */
-function isGeneratorFunction(obj) {
-  var constructor = obj.constructor;
-  if (!constructor) return false;
-  if ('GeneratorFunction' === constructor.name || 'GeneratorFunction' === constructor.displayName) return true;
-  return isGenerator(constructor.prototype);
-}
-
-/**
- * Check for plain object.
- *
- * @param {Mixed} val
- * @return {Boolean}
- * @api private
- */
-
-function isObject(val) {
-  return Object == val.constructor;
-}
-
 function createCommonjsModule(fn, module) {
 	return module = { exports: {} }, fn(module, module.exports), module.exports;
 }
@@ -277,10 +40,10 @@ function unsupported(object){
 }
 });
 
-var index$1 = createCommonjsModule(function (module) {
+var index = createCommonjsModule(function (module) {
 var pSlice = Array.prototype.slice;
-var objectKeys = keys;
-var isArguments = is_arguments;
+
+
 
 var deepEqual = module.exports = function (actual, expected, opts) {
   if (!opts) opts = {};
@@ -328,8 +91,8 @@ function objEquiv(a, b, opts) {
   if (a.prototype !== b.prototype) return false;
   //~~~I've managed to break Object.keys through screwy arguments passing.
   //   Converting to array solves the problem.
-  if (isArguments(a)) {
-    if (!isArguments(b)) {
+  if (is_arguments(a)) {
+    if (!is_arguments(b)) {
       return false;
     }
     a = pSlice.call(a);
@@ -347,8 +110,8 @@ function objEquiv(a, b, opts) {
     return true;
   }
   try {
-    var ka = objectKeys(a),
-        kb = objectKeys(b);
+    var ka = keys(a),
+        kb = keys(b);
   } catch (e) {//happens when one is a string literal and the other isn't
     return false;
   }
@@ -374,255 +137,225 @@ function objEquiv(a, b, opts) {
 }
 });
 
-const assertions = {
-  ok(val, message = 'should be truthy') {
-    const assertionResult = {
+var assert = (collect) => {
+  const insertAssertionHook = (fn) => (...args) => {
+    const assertResult = fn(...args);
+    collect(assertResult);
+    return assertResult;
+  };
+
+  return {
+    ok: insertAssertionHook((val, message = 'should be truthy') => ({
       pass: Boolean(val),
       expected: 'truthy',
       actual: val,
       operator: 'ok',
       message
-    };
-    this.test.addAssertion(assertionResult);
-    return assertionResult;
-  },
-  deepEqual(actual, expected, message = 'should be equivalent') {
-    const assertionResult = {
-      pass: index$1(actual, expected),
+    })),
+    deepEqual: insertAssertionHook((actual, expected, message = 'should be equivalent') => ({
+      pass: index(actual, expected),
       actual,
       expected,
       message,
       operator: 'deepEqual'
-    };
-    this.test.addAssertion(assertionResult);
-    return assertionResult;
-  },
-  equal(actual, expected, message = 'should be equal') {
-    const assertionResult = {
+    })),
+    equal: insertAssertionHook((actual, expected, message = 'should be equal') => ({
       pass: actual === expected,
       actual,
       expected,
       message,
       operator: 'equal'
-    };
-    this.test.addAssertion(assertionResult);
-    return assertionResult;
-  },
-  notOk(val, message = 'should not be truthy') {
-    const assertionResult = {
+    })),
+    notOk: insertAssertionHook((val, message = 'should not be truthy') => ({
       pass: !Boolean(val),
       expected: 'falsy',
       actual: val,
       operator: 'notOk',
       message
-    };
-    this.test.addAssertion(assertionResult);
-    return assertionResult;
-  },
-  notDeepEqual(actual, expected, message = 'should not be equivalent') {
-    const assertionResult = {
-      pass: !index$1(actual, expected),
+    })),
+    notDeepEqual: insertAssertionHook((actual, expected, message = 'should not be equivalent') => ({
+      pass: !index(actual, expected),
       actual,
       expected,
       message,
       operator: 'notDeepEqual'
-    };
-    this.test.addAssertion(assertionResult);
-    return assertionResult;
-  },
-  notEqual(actual, expected, message = 'should not be equal') {
-    const assertionResult = {
+    })),
+    notEqual: insertAssertionHook((actual, expected, message = 'should not be equal') => ({
       pass: actual !== expected,
       actual,
       expected,
       message,
       operator: 'notEqual'
-    };
-    this.test.addAssertion(assertionResult);
-    return assertionResult;
-  },
-  throws(func, expected, message) {
-    let caught, pass, actual;
-    if (typeof expected === 'string') {
-      [expected, message] = [message, expected];
-    }
-    try {
-      func();
-    } catch (error) {
-      caught = {error};
-    }
-    pass = caught !== undefined;
-    actual = caught && caught.error;
-    if (expected instanceof RegExp) {
-      pass = expected.test(actual) || expected.test(actual && actual.message);
-      expected = String(expected);
-    } else if (typeof expected === 'function' && caught) {
-      pass = actual instanceof expected;
-      actual = actual.constructor;
-    }
-    const assertionResult = {
-      pass,
-      expected,
-      actual,
-      operator: 'throws',
-      message: message || 'should throw'
-    };
-    this.test.addAssertion(assertionResult);
-    return assertionResult;
-  },
-  doesNotThrow(func, expected, message) {
-    let caught;
-    if (typeof expected === 'string') {
-      [expected, message] = [message, expected];
-    }
-    try {
-      func();
-    } catch (error) {
-      caught = {error};
-    }
-    const assertionResult = {
-      pass: caught === undefined,
-      expected: 'no thrown error',
-      actual: caught && caught.error,
-      operator: 'doesNotThrow',
-      message: message || 'should not throw'
-    };
-    this.test.addAssertion(assertionResult);
-    return assertionResult;
-  },
-  fail(reason = 'fail called') {
-    const assertionResult = {
+    })),
+    throws: insertAssertionHook((func, expected, message) => {
+      let caught, pass, actual;
+      if (typeof expected === 'string') {
+        [expected, message] = [message, expected];
+      }
+      try {
+        func();
+      } catch (error) {
+        caught = {error};
+      }
+      pass = caught !== undefined;
+      actual = caught && caught.error;
+      if (expected instanceof RegExp) {
+        pass = expected.test(actual) || expected.test(actual && actual.message);
+        expected = String(expected);
+      } else if (typeof expected === 'function' && caught) {
+        pass = actual instanceof expected;
+        actual = actual.constructor;
+      }
+      return {
+        pass,
+        expected,
+        actual,
+        operator: 'throws',
+        message: message || 'should throw'
+      };
+    }),
+    doesNotThrow: insertAssertionHook((func, expected, message) => {
+      let caught;
+      if (typeof expected === 'string') {
+        [expected, message] = [message, expected];
+      }
+      try {
+        func();
+      } catch (error) {
+        caught = {error};
+      }
+      return {
+        pass: caught === undefined,
+        expected: 'no thrown error',
+        actual: caught && caught.error,
+        operator: 'doesNotThrow',
+        message: message || 'should not throw'
+      };
+    }),
+    fail: insertAssertionHook((reason = 'fail called') => ({
       pass: false,
       actual: 'fail called',
       expected: 'fail not called',
       message: reason,
       operator: 'fail'
-    };
-    this.test.addAssertion(assertionResult);
-    return assertionResult;
-  }
+    }))
+  };
 };
 
-function assertion (test) {
-  return Object.create(assertions, {test: {value: test}});
-}
+var test = ({description, spec, only = false} = {}) => {
+  const assertions = [];
+  const collect = (...args) => assertions.push(...args.map(a => Object.assign({description}, a)));
 
-const Test = {
-  run: function () {
-    const assert = assertion(this);
-    const now = Date.now();
-    return index(this.coroutine(assert))
-      .then(() => {
-        return {assertions: this.assertions, executionTime: Date.now() - now};
-      });
-  },
-  addAssertion(){
-    const newAssertions = [...arguments].map(a => Object.assign({description: this.description}, a));
-    this.assertions.push(...newAssertions);
-    return this;
-  }
-};
+  const instance = {
+    run(){
+      const now = Date.now();
+      return Promise.resolve(spec(assert(collect)))
+        .then(() => ({assertions, executionTime: Date.now() - now}));
+    }
+  };
 
-function test ({description, coroutine, only = false}) {
-  return Object.create(Test, {
-    description: {value: description},
-    coroutine: {value: coroutine},
-    assertions: {value: []},
+  Object.defineProperties(instance, {
     only: {value: only},
+    assertions: {value: assertions},
     length: {
       get(){
-        return this.assertions.length
+        return assertions.length
       }
-    }
+    },
+    description: {value: description}
   });
-}
 
-function tapOut ({pass, message, index}) {
+  return instance;
+};
+
+const tapOut = ({pass, message, index}) => {
   const status = pass === true ? 'ok' : 'not ok';
   console.log([status, index, message].join(' '));
-}
+};
 
-function canExit () {
+const canExit = () => {
   return typeof process !== 'undefined' && typeof process.exit === 'function';
-}
+};
 
-function tap () {
-  return function * () {
-    let index = 1;
-    let lastId = 0;
-    let success = 0;
-    let failure = 0;
+var tap = () => function * () {
+  let index = 1;
+  let lastId = 0;
+  let success = 0;
+  let failure = 0;
 
-    const starTime = Date.now();
-    console.log('TAP version 13');
-    try {
-      while (true) {
-        const assertion = yield;
-        if (assertion.pass === true) {
-          success++;
-        } else {
-          failure++;
-        }
-        assertion.index = index;
-        if (assertion.id !== lastId) {
-          console.log(`# ${assertion.description} - ${assertion.executionTime}ms`);
-          lastId = assertion.id;
-        }
-        tapOut(assertion);
-        if (assertion.pass !== true) {
-          console.log(`  ---
+  const starTime = Date.now();
+  console.log('TAP version 13');
+  try {
+    while (true) {
+      const assertion = yield;
+      if (assertion.pass === true) {
+        success++;
+      } else {
+        failure++;
+      }
+      assertion.index = index;
+      if (assertion.id !== lastId) {
+        console.log(`# ${assertion.description} - ${assertion.executionTime}ms`);
+        lastId = assertion.id;
+      }
+      tapOut(assertion);
+      if (assertion.pass !== true) {
+        console.log(`  ---
   operator: ${assertion.operator}
   expected: ${JSON.stringify(assertion.expected)}
   actual: ${JSON.stringify(assertion.actual)}
   ...`);
-        }
-        index++;
       }
-    } catch (e) {
-      console.log('Bail out! unhandled exception');
-      console.log(e);
-      if (canExit()) {
-        process.exit(1);
-      }
+      index++;
     }
-    finally {
-      const execution = Date.now() - starTime;
-      if (index > 1) {
-        console.log(`
+  } catch (e) {
+    console.log('Bail out! unhandled exception');
+    console.log(e);
+    if (canExit()) {
+      process.exit(1);
+    }
+  }
+  finally {
+    const execution = Date.now() - starTime;
+    if (index > 1) {
+      console.log(`
 1..${index - 1}
 # duration ${execution}ms
 # success ${success}
 # failure ${failure}`);
-      }
-      if (failure && canExit()) {
-        process.exit(1);
-      }
     }
-  };
-}
+    if (failure && canExit()) {
+      process.exit(1);
+    }
+  }
+};
 
-const Plan = {
-  test(description, coroutine, opts = {}){
-    const testItems = (!coroutine && description.tests) ? [...description] : [{description, coroutine}];
-    this.tests.push(...testItems.map(t=>test(Object.assign(t, opts))));
-    return this;
-  },
-
-  only(description, coroutine){
-    return this.test(description, coroutine, {only: true});
-  },
-
-  run(sink = tap()){
-    const sinkIterator = sink();
-    sinkIterator.next();
-    const hasOnly = this.tests.some(t=>t.only);
-    const runnable = hasOnly ? this.tests.filter(t=>t.only) : this.tests;
-    return index(function * () {
+var zora = () => {
+  const tests = [];
+  const instance = {
+    test(description, spec, opts = {}){
+      if (!spec && description.test) {
+        //this is a plan
+        tests.push(...description);
+      } else {
+        const testItems = (description, spec) => (!spec && description.test) ? [...description] : [{description, spec}];
+        tests.push(...testItems(description, spec).map(t => test(Object.assign(t, opts))));
+      }
+      return instance;
+    },
+    only(description, spec, opts = {}){
+      return instance.test(description, spec, Object.assign(opts, {only: true}));
+    },
+    async run(sink = tap()){
+      const sinkIterator = sink();
+      const hasOnly = tests.some(t => t.only);
+      const runnable = hasOnly ? tests.filter(t => t.only) : tests;
       let id = 1;
+      sinkIterator.next();
       try {
-        const results = runnable.map(t=>t.run());
+        const results = runnable.map(t => t.run());
         for (let r of results) {
-          const {assertions, executionTime} = yield r;
+          const {assertions, executionTime} = await r;
           for (let assert of assertions) {
             sinkIterator.next(Object.assign(assert, {id, executionTime}));
           }
@@ -634,26 +367,23 @@ const Plan = {
       } finally {
         sinkIterator.return();
       }
-    }.bind(this))
-  },
-
-  * [Symbol.iterator](){
-    for (let t of this.tests) {
-      yield t;
+    },
+    [Symbol.iterator](){
+      return tests[Symbol.iterator]();
     }
-  }
-};
+  };
 
-function plan$1 () {
-  return Object.create(Plan, {
-    tests: {value: []},
+  Object.defineProperties(instance, {
+    tests: {value: tests},
     length: {
       get(){
-        return this.tests.length
+        return tests.length
       }
     }
   });
-}
+
+  return instance;
+};
 
 var sliceFactory = ({page = 1, size} = {}) => (array = []) => {
   const actualSize = size || array.length;
@@ -661,18 +391,18 @@ var sliceFactory = ({page = 1, size} = {}) => (array = []) => {
   return array.slice(offset, offset + actualSize);
 };
 
-var slice$1 = plan$1()
-  .test('slice: get a page with specified size', function * (t) {
+var slice = zora()
+  .test('slice: get a page with specified size', (t) => {
     const input = [1, 2, 3, 4, 5, 6, 7];
     const output = sliceFactory({page: 1, size: 5})(input);
     t.deepEqual(output, [1, 2, 3, 4, 5]);
   })
-  .test('slice: get a partial page if size is too big', function * (t) {
+  .test('slice: get a partial page if size is too big', (t) => {
     const input = [1, 2, 3, 4, 5, 6, 7];
     const output = sliceFactory({page: 2, size: 5})(input);
     t.deepEqual(output, [6, 7]);
   })
-  .test('slice: get all the asset if no param is provided', function * (t) {
+  .test('slice: get all the asset if no param is provided', (t) => {
     const input = [1, 2, 3, 4, 5, 6, 7];
     const output = sliceFactory()(input);
     t.deepEqual(output, input);
@@ -1058,11 +788,11 @@ var tableFactory = function ({
   }, coreTable);
 };
 
-var table = plan$1()
-  .test('compose table factory', function * (t) {
+var table = zora()
+  .test('compose table factory', (t) => {
     const data = [];
     const tableState = {};
-    const tableInstance = tableFactory({data, tableState}, function ({data:d, tableState:ts}) {
+    const tableInstance = tableFactory({data, tableState}, function ({data: d, tableState: ts}) {
       return {
         getData(){
           return d;
@@ -1106,8 +836,8 @@ function fakeTable () {
   return table;
 }
 
-var filterDirective = plan$1()
-  .test('filter directive should be able to register listener', function * (t) {
+var filterDirective = zora()
+  .test('filter directive should be able to register listener', (t) => {
     let counter = 0;
     const table = fakeTable();
     const fd = filter$1({table, pointer: 'foo'});
@@ -1115,7 +845,7 @@ var filterDirective = plan$1()
     table.dispatch(FILTER_CHANGED);
     t.equal(counter, 1, 'should have updated the counter');
   })
-  .test('filter directive should call table filter method passing the appropriate argument', function * (t) {
+  .test('filter directive should call table filter method passing the appropriate argument', (t) => {
     const table = fakeTable();
     const fd = filter$1({table, pointer: 'foo.bar', operator: 'is', type: 'number'});
     const arg = fd.filter(42);
@@ -1139,8 +869,8 @@ function fakeTable$1 () {
   return table;
 }
 
-var searchDirective = plan$1()
-  .test('search directive should be able to register listener', function * (t) {
+var searchDirective = zora()
+  .test('search directive should be able to register listener', (t) => {
     let counter = 0;
     const table = fakeTable$1();
     const dir = search$1({table});
@@ -1148,7 +878,7 @@ var searchDirective = plan$1()
     table.dispatch(SEARCH_CHANGED);
     t.equal(counter, 1, 'should have updated the counter');
   })
-  .test('search directive should call table search method passing the appropriate argument', function * (t) {
+  .test('search directive should call table search method passing the appropriate argument', (t) => {
     const table = fakeTable$1();
     const dir = search$1({table, scope: ['foo', 'bar.woot']});
     const arg = dir.search(42);
@@ -1157,7 +887,7 @@ var searchDirective = plan$1()
 
 const sliceListener = proxyListener({[PAGE_CHANGED]: 'onPageChange', [SUMMARY_CHANGED]: 'onSummaryChange'});
 
-var slice$2 = function ({table}) {
+var slice$1 = function ({table}) {
   let {slice:{page:currentPage, size:currentSize}} = table.getTableState();
   let itemListLength = table.length;
 
@@ -1201,61 +931,61 @@ function fakeTable$2 (slice = {}) {
   return table;
 }
 
-var sliceDirective = plan$1()
-  .test('slice directive should be able to register listener to PAGE_CHANGED event', function * (t) {
+var sliceDirective = zora()
+  .test('slice directive should be able to register listener to PAGE_CHANGED event', (t) => {
     let counter = 0;
     const table = fakeTable$2();
-    const dir = slice$2({table});
+    const dir = slice$1({table});
     dir.onPageChange(() => counter++);
     table.dispatch(PAGE_CHANGED, {size: 25, page: 1});
     t.equal(counter, 1, 'should have updated the counter');
   })
-  .test('slice directive should be able to register listener to SUMMARY_CHANGED event', function * (t) {
+  .test('slice directive should be able to register listener to SUMMARY_CHANGED event', (t) => {
     let counter = 0;
     const table = fakeTable$2();
-    const dir = slice$2({table});
+    const dir = slice$1({table});
     dir.onSummaryChange(() => counter++);
     table.dispatch(SUMMARY_CHANGED, {size: 25, page: 1});
     t.equal(counter, 1, 'should have updated the counter');
   })
-  .test('slice directive should call table slice method with the given page', function * (t) {
+  .test('slice directive should call table slice method with the given page', (t) => {
     const table = fakeTable$2({size: 25, page: 4});
-    const dir = slice$2({table});
+    const dir = slice$1({table});
     const arg = dir.selectPage(2);
     t.deepEqual(arg, {page: 2, size: 25});
   })
-  .test('slice directive should call table slice method with the next page arguments', function * (t) {
+  .test('slice directive should call table slice method with the next page arguments', (t) => {
     const table = fakeTable$2({size: 21, page: 4});
-    const dir = slice$2({table});
+    const dir = slice$1({table});
     const {page, size} = dir.selectNextPage();
     t.equal(page, 5, 'should be the next page');
     t.equal(size, 21, 'should keep the current page size');
   })
-  .test('slice directive should call table slice method with the previous page arguments', function * (t) {
+  .test('slice directive should call table slice method with the previous page arguments', (t) => {
     const table = fakeTable$2({size: 26, page: 9});
-    const dir = slice$2({table});
+    const dir = slice$1({table});
     const {page, size} = dir.selectPreviousPage();
     t.equal(page, 8, 'should be the previous page');
     t.equal(size, 26, 'should keep the current page size');
   })
-  .test('slice directive should call table slice method with the page size, returning to page one', function * (t) {
+  .test('slice directive should call table slice method with the page size, returning to page one', (t) => {
     const table = fakeTable$2();
-    const dir = slice$2({table, size: 100, page: 3});
+    const dir = slice$1({table, size: 100, page: 3});
     const {page, size} = dir.changePageSize(42);
     t.equal(page, 1, 'should have returned to the first page');
     t.equal(size, 42, 'should have change the page size');
   })
-  .test('slice directive should tell whether previous page is enabled', function * (t) {
+  .test('slice directive should tell whether previous page is enabled', (t) => {
     const table = fakeTable$2();
-    const dir = slice$2({table});
+    const dir = slice$1({table});
     table.dispatch(SUMMARY_CHANGED, {size: 25, page: 1});
     t.equal(dir.isPreviousPageEnabled(), false);
     table.dispatch(SUMMARY_CHANGED, {size: 25, page: 2});
     t.equal(dir.isPreviousPageEnabled(), true);
   })
-  .test('slice directive should tell whether next page is enabled', function * (t) {
+  .test('slice directive should tell whether next page is enabled', (t) => {
     const table = fakeTable$2();
-    const dir = slice$2({table});
+    const dir = slice$1({table});
     table.dispatch(SUMMARY_CHANGED, {size: 25, page: 3, filteredCount: 100});
     t.equal(dir.isNextPageEnabled(), true);
     table.dispatch(SUMMARY_CHANGED, {size: 25, page: 2, filteredCount: 38});
@@ -1295,8 +1025,8 @@ function fakeTable$3 () {
   return table;
 }
 
-var sortDirective = plan$1()
-  .test('sort directive should be able to register listener', function * (t) {
+var sortDirective = zora()
+  .test('sort directive should be able to register listener', (t) => {
     let counter = 0;
     const table = fakeTable$3();
     const dir = sort({table, pointer: 'foo.bar'});
@@ -1304,7 +1034,7 @@ var sortDirective = plan$1()
     table.dispatch(TOGGLE_SORT, {});
     t.equal(counter, 1, 'should have updated the counter');
   })
-  .test('sort directive dual state mode: sequentially change sort direction', function * (t) {
+  .test('sort directive dual state mode: sequentially change sort direction', (t) => {
     const table = fakeTable$3();
     const dir = sort({table, pointer: 'foo.bar'});
     const arg = dir.toggle();
@@ -1314,7 +1044,7 @@ var sortDirective = plan$1()
     const thirdArg = dir.toggle();
     t.deepEqual(thirdArg, {pointer: 'foo.bar', direction: 'asc'});
   })
-  .test('sort directive cycle mode: sequentially change sort direction', function * (t) {
+  .test('sort directive cycle mode: sequentially change sort direction', (t) => {
     const table = fakeTable$3();
     const dir = sort({table, pointer: 'foo.bar', cycle: true});
     const arg = dir.toggle();
@@ -1326,7 +1056,7 @@ var sortDirective = plan$1()
     const fourthArg = dir.toggle();
     t.deepEqual(fourthArg, {pointer: 'foo.bar', direction: 'asc'});
   })
-  .test('a directive should reset when it is not concerned by the toggle', function * (t) {
+  .test('a directive should reset when it is not concerned by the toggle', (t) => {
     const table = fakeTable$3();
     const dir = sort({table, pointer: 'foo.bar'});
     const arg = dir.toggle();
@@ -1341,8 +1071,8 @@ const summaryListener = proxyListener({[SUMMARY_CHANGED]: 'onSummaryChange'});
 
 var summary = ({table}) => summaryListener({emitter: table});
 
-var summaryDirective = plan$1()
-  .test('summary directive should be able to register listener', function * (t) {
+var summaryDirective = zora()
+  .test('summary directive should be able to register listener', (t) => {
     let counter = 0;
     const table = emitter();
     const s = summary({table});
@@ -1355,8 +1085,8 @@ const executionListener = proxyListener({[EXEC_CHANGED]: 'onExecutionChange'});
 
 var workingIndicator = ({table}) => executionListener({emitter: table});
 
-var wokringIndicatorDirective = plan$1()
-  .test('summary directive should be able to register listener', function * (t) {
+var wokringIndicatorDirective = zora()
+  .test('summary directive should be able to register listener', (t) => {
     let counter = 0;
     const table = emitter();
     const s = workingIndicator({table});
@@ -1373,15 +1103,15 @@ function wait (time) {
   });
 }
 
-var tableDirective = plan$1()
-  .test('table directive: should be able to register listener on display change', function * (t) {
+var tableDirective = zora()
+  .test('table directive: should be able to register listener on display change', (t) => {
     let displayed = null;
     const table = tableFactory({});
     table.onDisplayChange((args) => displayed = args);
     table.dispatch(DISPLAY_CHANGED, 'foo');
     t.equal(displayed, 'foo');
   })
-  .test('table directive: sort should dispatch the mutated sort state', function * (t) {
+  .test('table directive: sort should dispatch the mutated sort state', (t) => {
     let sortState = null;
     let sliceState = null;
     const table = tableFactory({});
@@ -1392,7 +1122,7 @@ var tableDirective = plan$1()
     t.deepEqual(sortState, newState);
     t.deepEqual(sliceState, {page: 1}, 'should have reset to first page');
   })
-  .test('table directive: sort should trigger an execution with the new state', function * (t) {
+  .test('table directive: sort should trigger an execution with the new state', (t) => {
     const table = tableFactory({}, function ({tableState}) {
       return {
         exec(){
@@ -1403,7 +1133,7 @@ var tableDirective = plan$1()
     const newState = table.sort({direction: 'asc', pointer: 'foo.bar'});
     t.deepEqual(newState, {slice: {page: 1}, filter: {}, search: {}, sort: {direction: 'asc', pointer: 'foo.bar'}});
   })
-  .test('table directive: slice should dispatch the mutated slice state', function * (t) {
+  .test('table directive: slice should dispatch the mutated slice state', (t) => {
     let sliceState = null;
     const table = tableFactory({});
     table.on(PAGE_CHANGED, arg => sliceState = arg);
@@ -1411,7 +1141,7 @@ var tableDirective = plan$1()
     table.slice(newState);
     t.deepEqual(sliceState, newState);
   })
-  .test('table directive: slice should trigger an execution with the new state', function * (t) {
+  .test('table directive: slice should trigger an execution with the new state', (t) => {
     const table = tableFactory({}, function ({tableState}) {
       return {
         exec(){
@@ -1422,7 +1152,7 @@ var tableDirective = plan$1()
     const newState = table.slice({page: 4, size: 12});
     t.deepEqual(newState, {"sort": {}, "slice": {"page": 4, "size": 12}, "filter": {}, "search": {}});
   })
-  .test('table directive: filter should dispatch the mutated filter state', function * (t) {
+  .test('table directive: filter should dispatch the mutated filter state', (t) => {
     let filterState = null;
     let sliceState = null;
     const table = tableFactory({});
@@ -1433,7 +1163,7 @@ var tableDirective = plan$1()
     t.deepEqual(filterState, newState);
     t.deepEqual(sliceState, {page: 1}, 'should have reset the page');
   })
-  .test('table directive: filter should trigger an execution with the new state', function * (t) {
+  .test('table directive: filter should trigger an execution with the new state', (t) => {
     const table = tableFactory({}, function ({tableState}) {
       return {
         exec(){
@@ -1445,7 +1175,7 @@ var tableDirective = plan$1()
     t.deepEqual(newState, {"sort": {}, "slice": {"page": 1}, "filter": {"foo": [{"value": "bar"}]}, "search": {}}
     );
   })
-  .test('table directive: search should dispatch the mutated search state', function * (t) {
+  .test('table directive: search should dispatch the mutated search state', (t) => {
     let searchState = null;
     let sliceState = null;
     const table = tableFactory({});
@@ -1456,7 +1186,7 @@ var tableDirective = plan$1()
     t.deepEqual(searchState, newState);
     t.deepEqual(sliceState, {page: 1}, 'should have reset to the first page');
   })
-  .test('table directive: search should trigger an execution with the new state', function * (t) {
+  .test('table directive: search should trigger an execution with the new state', (t) => {
     const table = tableFactory({}, function ({tableState}) {
       return {
         exec(){
@@ -1467,7 +1197,7 @@ var tableDirective = plan$1()
     const newState = table.search({value: 'bar'});
     t.deepEqual(newState, {"sort": {}, "slice": {"page": 1}, "filter": {}, "search": {"value": "bar"}});
   })
-  .test('table directive: eval should return the displayed collection based on table state by default', function * (t) {
+  .test('table directive: eval should return the displayed collection based on table state by default', async function (t) {
     const tableState = {
       sort: {pointer: 'id', direction: 'desc'},
       search: {},
@@ -1482,7 +1212,7 @@ var tableDirective = plan$1()
       ],
       tableState
     });
-    const output = yield table.eval();
+    const output = await table.eval();
     t.deepEqual(output, [
       {"index": 2, "value": {"id": 3, "name": "bip"}},
       {"index": 1, "value": {"id": 2, "name": "blah"}}
@@ -1490,10 +1220,10 @@ var tableDirective = plan$1()
 
     //table state has mutated !
     tableState.slice = {page: 2, size: 2};
-    const outputBis = yield table.eval();
+    const outputBis = await table.eval();
     t.deepEqual(outputBis, [{"index": 0, "value": {"id": 1, "name": "foo"}}]);
   })
-  .test('table directive: eval should be able to take any state as input', function * (t) {
+  .test('table directive: eval should be able to take any state as input', async function (t) {
     const tableState = {
       sort: {pointer: 'id', direction: 'desc'},
       search: {},
@@ -1508,14 +1238,14 @@ var tableDirective = plan$1()
       ],
       tableState
     });
-    const output = yield table.eval({sort: {}, slice: {}, filter: {}, search: {}});
+    const output = await table.eval({sort: {}, slice: {}, filter: {}, search: {}});
     t.deepEqual(output, [
       {"index": 0, "value": {"id": 1, "name": "foo"}},
       {"index": 1, "value": {"id": 2, "name": "blah"}},
       {"index": 2, "value": {"id": 3, "name": "bip"}}
     ]);
   })
-  .test('table directive: eval should not dispatch any event', function * (t) {
+  .test('table directive: eval should not dispatch any event', async function (t) {
     let counter = 0;
     const tableState = {
       sort: {pointer: 'id', direction: 'desc'},
@@ -1534,7 +1264,7 @@ var tableDirective = plan$1()
     table.on(SEARCH_CHANGED, incrementCounter);
     table.on(SUMMARY_CHANGED, incrementCounter);
     table.on(EXEC_CHANGED, incrementCounter);
-    yield table.eval();
+    await table.eval();
     t.equal(counter, 0, 'counter should not have been updated');
     t.deepEqual(tableState, {
       sort: {pointer: 'id', direction: 'desc'},
@@ -1543,7 +1273,7 @@ var tableDirective = plan$1()
       slice: {page: 1, size: 2}
     }, 'table state should not have changed');
   })
-  .test('exec should first set the working state to true then false', function * (t) {
+  .test('exec should first set the working state to true then false', async function (t) {
     let workingState;
     const table = tableFactory({
       data: [
@@ -1557,10 +1287,10 @@ var tableDirective = plan$1()
     });
     table.exec();
     t.equal(workingState, true);
-    yield wait(25);
+    await wait(25);
     t.equal(workingState, false);
   })
-  .test('exec should dispatch the display changed event with the new displayed value', function * (t) {
+  .test('exec should dispatch the display changed event with the new displayed value', async function (t) {
     let displayed;
     const tableState = {
       sort: {pointer: 'id', direction: 'desc'},
@@ -1579,13 +1309,13 @@ var tableDirective = plan$1()
 
     table.onDisplayChange(val => displayed = val);
     table.exec();
-    yield wait(25);
+    await wait(25);
     t.deepEqual(displayed, [
       {"index": 2, "value": {"id": 3, "name": "bip"}},
       {"index": 1, "value": {"id": 2, "name": "blah"}}
     ]);
   })
-  .test('exec should dispatch the summary changed event with the new value', function * (t) {
+  .test('exec should dispatch the summary changed event with the new value', async function (t) {
     let summary;
     const tableState = {
       sort: {pointer: 'id', direction: 'desc'},
@@ -1604,11 +1334,11 @@ var tableDirective = plan$1()
 
     table.on(SUMMARY_CHANGED, val => summary = val);
     table.exec();
-    yield wait(25);
+    await wait(25);
     t.deepEqual(summary, {"page": 1, "size": 1, "filteredCount": 2}
     );
   })
-  .test('getTableState should return a deep copy of the tableState', function * (t) {
+  .test('getTableState should return a deep copy of the tableState', (t) => {
     const tableState = {
       sort: {pointer: 'foo'},
       slice: {page: 2, size: 25},
@@ -1624,8 +1354,8 @@ var tableDirective = plan$1()
     t.ok(!Object.is(copy.slice, tableState.slice));
   });
 
-plan$1()
-  .test(slice$1)
+zora()
+  .test(slice)
   .test(table)
   .test(filterDirective)
   .test(searchDirective)

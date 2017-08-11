@@ -2,10 +2,10 @@ import  zora from 'zora';
 import table from '../src/table';
 
 export default zora()
-  .test('compose table factory', function * (t) {
+  .test('compose table factory', (t) => {
     const data = [];
     const tableState = {};
-    const tableInstance = table({data, tableState}, function ({data:d, tableState:ts}) {
+    const tableInstance = table({data, tableState}, function ({data: d, tableState: ts}) {
       return {
         getData(){
           return d;

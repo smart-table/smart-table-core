@@ -10,7 +10,7 @@ function fakeTable () {
 }
 
 export default zora()
-  .test('search directive should be able to register listener', function * (t) {
+  .test('search directive should be able to register listener', (t) => {
     let counter = 0;
     const table = fakeTable();
     const dir = search({table});
@@ -18,7 +18,7 @@ export default zora()
     table.dispatch(SEARCH_CHANGED);
     t.equal(counter, 1, 'should have updated the counter');
   })
-  .test('search directive should call table search method passing the appropriate argument', function * (t) {
+  .test('search directive should call table search method passing the appropriate argument', (t) => {
     const table = fakeTable();
     const dir = search({table, scope: ['foo', 'bar.woot']});
     const arg = dir.search(42);

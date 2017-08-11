@@ -19,14 +19,14 @@ function wait (time) {
 }
 
 export default zora()
-  .test('table directive: should be able to register listener on display change', function * (t) {
+  .test('table directive: should be able to register listener on display change', (t) => {
     let displayed = null;
     const table = tableFactory({});
     table.onDisplayChange((args) => displayed = args);
     table.dispatch(DISPLAY_CHANGED, 'foo');
     t.equal(displayed, 'foo');
   })
-  .test('table directive: sort should dispatch the mutated sort state', function * (t) {
+  .test('table directive: sort should dispatch the mutated sort state', (t) => {
     let sortState = null;
     let sliceState = null;
     const table = tableFactory({});
@@ -37,7 +37,7 @@ export default zora()
     t.deepEqual(sortState, newState);
     t.deepEqual(sliceState, {page: 1}, 'should have reset to first page');
   })
-  .test('table directive: sort should trigger an execution with the new state', function * (t) {
+  .test('table directive: sort should trigger an execution with the new state', (t) => {
     const table = tableFactory({}, function ({tableState}) {
       return {
         exec(){
@@ -48,7 +48,7 @@ export default zora()
     const newState = table.sort({direction: 'asc', pointer: 'foo.bar'});
     t.deepEqual(newState, {slice: {page: 1}, filter: {}, search: {}, sort: {direction: 'asc', pointer: 'foo.bar'}});
   })
-  .test('table directive: slice should dispatch the mutated slice state', function * (t) {
+  .test('table directive: slice should dispatch the mutated slice state', (t) => {
     let sliceState = null;
     const table = tableFactory({});
     table.on(PAGE_CHANGED, arg => sliceState = arg);
@@ -56,7 +56,7 @@ export default zora()
     table.slice(newState);
     t.deepEqual(sliceState, newState);
   })
-  .test('table directive: slice should trigger an execution with the new state', function * (t) {
+  .test('table directive: slice should trigger an execution with the new state', (t) => {
     const table = tableFactory({}, function ({tableState}) {
       return {
         exec(){
@@ -67,7 +67,7 @@ export default zora()
     const newState = table.slice({page: 4, size: 12});
     t.deepEqual(newState, {"sort": {}, "slice": {"page": 4, "size": 12}, "filter": {}, "search": {}});
   })
-  .test('table directive: filter should dispatch the mutated filter state', function * (t) {
+  .test('table directive: filter should dispatch the mutated filter state', (t) => {
     let filterState = null;
     let sliceState = null;
     const table = tableFactory({});
@@ -78,7 +78,7 @@ export default zora()
     t.deepEqual(filterState, newState);
     t.deepEqual(sliceState, {page: 1}, 'should have reset the page');
   })
-  .test('table directive: filter should trigger an execution with the new state', function * (t) {
+  .test('table directive: filter should trigger an execution with the new state', (t) => {
     const table = tableFactory({}, function ({tableState}) {
       return {
         exec(){
@@ -90,7 +90,7 @@ export default zora()
     t.deepEqual(newState, {"sort": {}, "slice": {"page": 1}, "filter": {"foo": [{"value": "bar"}]}, "search": {}}
     );
   })
-  .test('table directive: search should dispatch the mutated search state', function * (t) {
+  .test('table directive: search should dispatch the mutated search state', (t) => {
     let searchState = null;
     let sliceState = null;
     const table = tableFactory({});
@@ -101,7 +101,7 @@ export default zora()
     t.deepEqual(searchState, newState);
     t.deepEqual(sliceState, {page: 1}, 'should have reset to the first page');
   })
-  .test('table directive: search should trigger an execution with the new state', function * (t) {
+  .test('table directive: search should trigger an execution with the new state', (t) => {
     const table = tableFactory({}, function ({tableState}) {
       return {
         exec(){
@@ -112,7 +112,7 @@ export default zora()
     const newState = table.search({value: 'bar'});
     t.deepEqual(newState, {"sort": {}, "slice": {"page": 1}, "filter": {}, "search": {"value": "bar"}});
   })
-  .test('table directive: eval should return the displayed collection based on table state by default', function * (t) {
+  .test('table directive: eval should return the displayed collection based on table state by default', async function (t) {
     const tableState = {
       sort: {pointer: 'id', direction: 'desc'},
       search: {},
@@ -127,7 +127,7 @@ export default zora()
       ],
       tableState
     });
-    const output = yield table.eval();
+    const output = await table.eval();
     t.deepEqual(output, [
       {"index": 2, "value": {"id": 3, "name": "bip"}},
       {"index": 1, "value": {"id": 2, "name": "blah"}}
@@ -135,10 +135,10 @@ export default zora()
 
     //table state has mutated !
     tableState.slice = {page: 2, size: 2};
-    const outputBis = yield table.eval();
+    const outputBis = await table.eval();
     t.deepEqual(outputBis, [{"index": 0, "value": {"id": 1, "name": "foo"}}]);
   })
-  .test('table directive: eval should be able to take any state as input', function * (t) {
+  .test('table directive: eval should be able to take any state as input', async function (t) {
     const tableState = {
       sort: {pointer: 'id', direction: 'desc'},
       search: {},
@@ -153,14 +153,14 @@ export default zora()
       ],
       tableState
     });
-    const output = yield table.eval({sort: {}, slice: {}, filter: {}, search: {}});
+    const output = await table.eval({sort: {}, slice: {}, filter: {}, search: {}});
     t.deepEqual(output, [
       {"index": 0, "value": {"id": 1, "name": "foo"}},
       {"index": 1, "value": {"id": 2, "name": "blah"}},
       {"index": 2, "value": {"id": 3, "name": "bip"}}
     ]);
   })
-  .test('table directive: eval should not dispatch any event', function * (t) {
+  .test('table directive: eval should not dispatch any event', async function (t) {
     let counter = 0;
     const tableState = {
       sort: {pointer: 'id', direction: 'desc'},
@@ -179,7 +179,7 @@ export default zora()
     table.on(SEARCH_CHANGED, incrementCounter);
     table.on(SUMMARY_CHANGED, incrementCounter);
     table.on(EXEC_CHANGED, incrementCounter);
-    yield table.eval();
+    await table.eval();
     t.equal(counter, 0, 'counter should not have been updated');
     t.deepEqual(tableState, {
       sort: {pointer: 'id', direction: 'desc'},
@@ -188,7 +188,7 @@ export default zora()
       slice: {page: 1, size: 2}
     }, 'table state should not have changed');
   })
-  .test('exec should first set the working state to true then false', function * (t) {
+  .test('exec should first set the working state to true then false', async function (t) {
     let workingState;
     const table = tableFactory({
       data: [
@@ -202,10 +202,10 @@ export default zora()
     });
     table.exec();
     t.equal(workingState, true);
-    yield wait(25);
+    await wait(25);
     t.equal(workingState, false);
   })
-  .test('exec should dispatch the display changed event with the new displayed value', function * (t) {
+  .test('exec should dispatch the display changed event with the new displayed value', async function (t) {
     let displayed;
     const tableState = {
       sort: {pointer: 'id', direction: 'desc'},
@@ -224,13 +224,13 @@ export default zora()
 
     table.onDisplayChange(val => displayed = val);
     table.exec();
-    yield wait(25);
+    await wait(25);
     t.deepEqual(displayed, [
       {"index": 2, "value": {"id": 3, "name": "bip"}},
       {"index": 1, "value": {"id": 2, "name": "blah"}}
     ]);
   })
-  .test('exec should dispatch the summary changed event with the new value', function * (t) {
+  .test('exec should dispatch the summary changed event with the new value', async function (t) {
     let summary;
     const tableState = {
       sort: {pointer: 'id', direction: 'desc'},
@@ -249,11 +249,11 @@ export default zora()
 
     table.on(SUMMARY_CHANGED, val => summary = val);
     table.exec();
-    yield wait(25);
+    await wait(25);
     t.deepEqual(summary, {"page": 1, "size": 1, "filteredCount": 2}
     );
   })
-  .test('getTableState should return a deep copy of the tableState', function * (t) {
+  .test('getTableState should return a deep copy of the tableState', (t) => {
     const tableState = {
       sort: {pointer: 'foo'},
       slice: {page: 2, size: 25},
