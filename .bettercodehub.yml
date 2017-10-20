@@ -1,0 +1,6 @@
+exclude:
+  - /dist/smart-table.js
+  - /rollup.config.js
+component_depth: 1
+languages:
+  - javascript
