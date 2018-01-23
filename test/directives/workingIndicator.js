@@ -1,4 +1,4 @@
-import workingIndicator from '../../src/directives/workingIndicator';
+import workingIndicator from '../../src/directives/working-indicator';
 import {EXEC_CHANGED} from '../../src/events';
 import {emitter} from 'smart-table-events';
 import zora from 'zora';

@@ -1,5 +1,5 @@
-import {SUMMARY_CHANGED} from '../events';
 import {proxyListener} from 'smart-table-events';
+import {SUMMARY_CHANGED} from '../events';
 
 const summaryListener = proxyListener({[SUMMARY_CHANGED]: 'onSummaryChange'});
 

@@ -4,7 +4,7 @@ import searchDirective from './src/directives/search';
 import sliceDirective from './src/directives/slice';
 import sortDirective from './src/directives/sort';
 import summaryDirective from './src/directives/summary';
-import workingIndicatorDirective from './src/directives/workingIndicator';
+import workingIndicatorDirective from './src/directives/working-indicator';
 
 export const search = searchDirective;
 export const slice = sliceDirective;
