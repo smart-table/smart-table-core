@@ -8,7 +8,7 @@
   "scripts": {
     "build": "rollup -c ./rollup/build.js && rollup -c ./rollup/cdn.js",
     "test": "rollup -c ./rollup/test.js | node | tap-diff",
-    "xo":"xo ./src/**/*.js ./index.js"
+    "xo": "xo ./src/**/*.js ./index.js"
   },
   "repository": {
     "type": "git",
