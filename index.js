@@ -13,4 +13,3 @@ export const sort = sortDirective;
 export const filter = filterDirective;
 export const workingIndicator = workingIndicatorDirective;
 export const table = tableDirective;
-export default table;

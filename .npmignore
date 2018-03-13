@@ -1,4 +1,5 @@
 .idea
+.circleci
 test
 rollup
 node_modules

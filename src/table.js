@@ -13,14 +13,13 @@ export default function ({
 
 	const coreTable = table({sortFactory, filterFactory, tableState, data, searchFactory});
 
-	return tableDirectives.reduce((accumulator, newdir) => {
-		return Object.assign(accumulator, newdir({
+	return tableDirectives.reduce((accumulator, newdir) => Object.assign(accumulator, newdir({
 			sortFactory,
 			filterFactory,
 			searchFactory,
 			tableState,
 			data,
 			table: coreTable
-		}));
-	}, coreTable);
+		}))
+		, coreTable);
 }

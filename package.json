@@ -7,7 +7,8 @@
   "module": "index.js",
   "scripts": {
     "build": "rollup -c ./rollup/build.js && rollup -c ./rollup/cdn.js",
-    "test": "xo ./src/**/*.js ./index.js && rollup -c ./test/rollup.config.js | node | tap-diff"
+    "test": "rollup -c ./rollup/test.js | node | tap-diff",
+    "xo":"xo ./src/**/*.js ./index.js"
   },
   "repository": {
     "type": "git",
@@ -26,12 +27,12 @@
   },
   "homepage": "https://github.com/smart-table/smart-table-core#readme",
   "devDependencies": {
-    "rollup": "^0.55.0",
-    "rollup-plugin-commonjs": "^8.2.6",
-    "rollup-plugin-node-resolve": "^3.0.2",
+    "rollup": "^0.56.5",
+    "rollup-plugin-commonjs": "^9.1.0",
+    "rollup-plugin-node-resolve": "^3.2.0",
     "tap-diff": "^0.1.1",
-    "xo": "^0.18.2",
-    "zora": "^1.1.6"
+    "xo": "^0.20.3",
+    "zora": "^2.0.0"
   },
   "dependencies": {
     "smart-table-events": "^1.0.4",
