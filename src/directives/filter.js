@@ -16,5 +16,8 @@ export default ({table, pointer, operator = 'includes', type = 'string'}) => Obj
 
 		};
 		return table.filter(filterConf);
+	},
+	state() {
+		return table.getTableState().filter;
 	}
 }, filterListener({emitter: table}));

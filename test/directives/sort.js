@@ -6,6 +6,7 @@ import {emitter} from 'smart-table-events';
 const fakeTable = () => {
 	const table = emitter();
 	table.sort = input => input;
+	table.getTableState = () => ({sort: {foo: 'bar'}});
 	return table;
 };
 
@@ -44,7 +45,12 @@ test('a directive should reset when it is not concerned by the toggle', (t) => {
 	const dir = sort({table, pointer: 'foo.bar'});
 	const arg = dir.toggle();
 	t.deepEqual(arg, {pointer: 'foo.bar', direction: 'asc'});
-	table.dispatch(TOGGLE_SORT, {pointer: 'woot.woot'})
+	table.dispatch(TOGGLE_SORT, {pointer: 'woot.woot'});
 	const secondArg = dir.toggle();
 	t.deepEqual(secondArg, {pointer: 'foo.bar', direction: 'asc'});
+});
+test('sort should return the sort state of the table state', t => {
+	const table = fakeTable();
+	const dir = sort({table, pointer: 'foo.bar'});
+	t.deepEqual(dir.state(), {foo: 'bar'});
 });

@@ -6,6 +6,7 @@ import {emitter} from 'smart-table-events';
 const fakeTable = () => {
 	const table = emitter();
 	table.search = input => input;
+	table.getTableState = () => ({search: {foo: 'bar'}});
 	return table;
 };
 
@@ -22,4 +23,9 @@ test('search directive should call table search method passing the appropriate a
 	const dir = search({table, scope: ['foo', 'bar.woot']});
 	const arg = dir.search(42);
 	t.deepEqual(arg, {value: 42, scope: ['foo', 'bar.woot']});
+});
+test('search directive should return the search part of the table state', t => {
+	const table = fakeTable();
+	const dir = search({table, scope: ['foo']});
+	t.deepEqual(dir.state(), {foo: 'bar'});
 });

@@ -71,3 +71,9 @@ test('slice directive should tell whether next page is enabled', (t) => {
 	table.dispatch(SUMMARY_CHANGED, {size: 25, page: 2, filteredCount: 38});
 	t.equal(dir.isNextPageEnabled(), false);
 });
+test('slice directive should return the slice part of the table state and the summary values', t => {
+	const table = fakeTable({size: 25, page: 3, filteredCount: 100});
+	const dir = slice({table});
+	table.dispatch(SUMMARY_CHANGED, {size: 25, page: 3, filteredCount: 100});
+	t.deepEqual(dir.state(), {size: 25, page: 3, filteredCount: 100});
+});

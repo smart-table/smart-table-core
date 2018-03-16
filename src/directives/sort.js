@@ -13,8 +13,10 @@ export default function ({pointer, table, cycle = false}) {
 			hit++;
 			const direction = cycleDirections[hit % cycleDirections.length];
 			return table.sort({pointer, direction});
+		},
+		state() {
+			return table.getTableState().sort;
 		}
-
 	}, sortListeners({emitter: table}));
 
 	directive.onSortToggle(({pointer: p}) => {

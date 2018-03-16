@@ -25,6 +25,9 @@ export default function ({table}) {
 		},
 		isNextPageEnabled() {
 			return Math.ceil(itemListLength / currentSize) > currentPage;
+		},
+		state() {
+			return Object.assign(table.getTableState().slice, {filteredCount: itemListLength});
 		}
 	};
 	const directive = Object.assign(api, sliceListener({emitter: table}));

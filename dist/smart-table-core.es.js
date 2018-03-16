@@ -364,6 +364,9 @@ var filterDirective = ({table, pointer, operator = 'includes', type = 'string'})
 
 		};
 		return table.filter(filterConf);
+	},
+	state() {
+		return table.getTableState().filter;
 	}
 }, filterListener({emitter: table}));
 
@@ -372,6 +375,9 @@ const searchListener = proxyListener({[SEARCH_CHANGED]: 'onSearchChange'});
 var searchDirective = ({table, scope = []}) => Object.assign(searchListener({emitter: table}), {
 	search(input) {
 		return table.search({value: input, scope});
+	},
+	state() {
+		return table.getTableState().search;
 	}
 });
 
@@ -399,6 +405,9 @@ function sliceDirective ({table}) {
 		},
 		isNextPageEnabled() {
 			return Math.ceil(itemListLength / currentSize) > currentPage;
+		},
+		state() {
+			return Object.assign(table.getTableState().slice, {filteredCount: itemListLength});
 		}
 	};
 	const directive = Object.assign(api, sliceListener({emitter: table}));
@@ -424,8 +433,10 @@ function sortDirective ({pointer, table, cycle = false}) {
 			hit++;
 			const direction = cycleDirections[hit % cycleDirections.length];
 			return table.sort({pointer, direction});
+		},
+		state() {
+			return table.getTableState().sort;
 		}
-
 	}, sortListeners({emitter: table}));
 
 	directive.onSortToggle(({pointer: p}) => {
