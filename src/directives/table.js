@@ -13,17 +13,22 @@ import {
 	EXEC_ERROR
 } from '../events';
 
-function curriedPointer(path) {
+const curriedPointer = path => {
 	const {get, set} = pointer(path);
 	return {get, set: curry(set)};
-}
+};
 
-export default function ({sortFactory, tableState, data, filterFactory, searchFactory}) {
+export default ({sortFactory, tableState, data, filterFactory, searchFactory}) => {
+	let filteredCount = data.length;
 	const table = emitter();
 	const sortPointer = curriedPointer('sort');
 	const slicePointer = curriedPointer('slice');
 	const filterPointer = curriedPointer('filter');
 	const searchPointer = curriedPointer('search');
+
+	table.on(SUMMARY_CHANGED, ({filteredCount: count}) => {
+		filteredCount = count;
+	});
 
 	const safeAssign = curry((base, extension) => Object.assign({}, base, extension));
 	const dispatch = curry(table.dispatch, 2);
@@ -44,9 +49,7 @@ export default function ({sortFactory, tableState, data, filterFactory, searchFa
 				const sliceFunc = sliceFactory(slicePointer.get(tableState));
 				const execFunc = compose(filterFunc, searchFunc, tap(dispatchSummary), sortFunc, sliceFunc);
 				const displayed = execFunc(data);
-				table.dispatch(DISPLAY_CHANGED, displayed.map(d => {
-					return {index: data.indexOf(d), value: d};
-				}));
+				table.dispatch(DISPLAY_CHANGED, displayed.map(d => ({index: data.indexOf(d), value: d})));
 			} catch (err) {
 				table.dispatch(EXEC_ERROR, err);
 			} finally {
@@ -75,17 +78,13 @@ export default function ({sortFactory, tableState, data, filterFactory, searchFa
 		search: tableOperation(searchPointer, SEARCH_CHANGED),
 		slice: compose(updateTableState(slicePointer, PAGE_CHANGED), () => table.exec()),
 		exec,
-		eval(state = tableState) {
-			return Promise
-				.resolve()
-				.then(() => {
-					const sortFunc = sortFactory(sortPointer.get(state));
-					const searchFunc = searchFactory(searchPointer.get(state));
-					const filterFunc = filterFactory(filterPointer.get(state));
-					const sliceFunc = sliceFactory(slicePointer.get(state));
-					const execFunc = compose(filterFunc, searchFunc, sortFunc, sliceFunc);
-					return execFunc(data).map(d => ({index: data.indexOf(d), value: d}));
-				});
+		async eval(state = tableState) {
+			const sortFunc = sortFactory(sortPointer.get(state));
+			const searchFunc = searchFactory(searchPointer.get(state));
+			const filterFunc = filterFactory(filterPointer.get(state));
+			const sliceFunc = sliceFactory(slicePointer.get(state));
+			const execFunc = compose(filterFunc, searchFunc, sortFunc, sliceFunc);
+			return execFunc(data).map(d => ({index: data.indexOf(d), value: d}));
 		},
 		onDisplayChange(fn) {
 			table.on(DISPLAY_CHANGED, fn);
@@ -104,11 +103,18 @@ export default function ({sortFactory, tableState, data, filterFactory, searchFa
 
 	const instance = Object.assign(table, api);
 
-	Object.defineProperty(instance, 'length', {
-		get() {
-			return data.length;
+	Object.defineProperties(instance, {
+		filteredCount: {
+			get() {
+				return filteredCount;
+			}
+		},
+		length: {
+			get() {
+				return data.length;
+			}
 		}
 	});
 
 	return instance;
-}
+};

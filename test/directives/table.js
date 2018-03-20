@@ -10,13 +10,13 @@ import {
 	EXEC_CHANGED
 } from '../../src/events'
 
-const wait = time => new Promise(function (resolve, reject) {
-	setTimeout(function () {
+const wait = time => new Promise(resolve => {
+	setTimeout(() => {
 		resolve('finished');
 	}, time);
 });
 
-test('table directive: should be able to register listener on display change', (t) => {
+test('table directive: should be able to register listener on display change', t => {
 	let displayed = null;
 	const table = tableFactory({});
 	table.onDisplayChange((args) => displayed = args);
@@ -24,7 +24,7 @@ test('table directive: should be able to register listener on display change', (
 	t.equal(displayed, 'foo');
 });
 
-test('table directive: sort should dispatch the mutated sort state', (t) => {
+test('table directive: sort should dispatch the mutated sort state', t => {
 	let sortState = null;
 	let sliceState = null;
 	const table = tableFactory({});
@@ -36,7 +36,7 @@ test('table directive: sort should dispatch the mutated sort state', (t) => {
 	t.deepEqual(sliceState, {page: 1}, 'should have reset to first page');
 });
 
-test('table directive: sort should trigger an execution with the new state', (t) => {
+test('table directive: sort should trigger an execution with the new state', t => {
 	const table = tableFactory({}, function ({tableState}) {
 		return {
 			exec() {
@@ -48,7 +48,7 @@ test('table directive: sort should trigger an execution with the new state', (t)
 	t.deepEqual(newState, {slice: {page: 1}, filter: {}, search: {}, sort: {direction: 'asc', pointer: 'foo.bar'}});
 });
 
-test('table directive: slice should dispatch the mutated slice state', (t) => {
+test('table directive: slice should dispatch the mutated slice state', t => {
 	let sliceState = null;
 	const table = tableFactory({});
 	table.on(PAGE_CHANGED, arg => sliceState = arg);
@@ -57,7 +57,7 @@ test('table directive: slice should dispatch the mutated slice state', (t) => {
 	t.deepEqual(sliceState, newState);
 });
 
-test('table directive: slice should trigger an execution with the new state', (t) => {
+test('table directive: slice should trigger an execution with the new state', t => {
 	const table = tableFactory({}, function ({tableState}) {
 		return {
 			exec() {
@@ -69,7 +69,7 @@ test('table directive: slice should trigger an execution with the new state', (t
 	t.deepEqual(newState, {"sort": {}, "slice": {"page": 4, "size": 12}, "filter": {}, "search": {}});
 });
 
-test('table directive: filter should dispatch the mutated filter state', (t) => {
+test('table directive: filter should dispatch the mutated filter state', t => {
 	let filterState = null;
 	let sliceState = null;
 	const table = tableFactory({});
@@ -81,7 +81,7 @@ test('table directive: filter should dispatch the mutated filter state', (t) => 
 	t.deepEqual(sliceState, {page: 1}, 'should have reset the page');
 });
 
-test('table directive: filter should trigger an execution with the new state', (t) => {
+test('table directive: filter should trigger an execution with the new state', t => {
 	const table = tableFactory({}, function ({tableState}) {
 		return {
 			exec() {
@@ -94,7 +94,7 @@ test('table directive: filter should trigger an execution with the new state', (
 	);
 });
 
-test('table directive: search should dispatch the mutated search state', (t) => {
+test('table directive: search should dispatch the mutated search state', t => {
 	let searchState = null;
 	let sliceState = null;
 	const table = tableFactory({});
@@ -106,7 +106,7 @@ test('table directive: search should dispatch the mutated search state', (t) => 
 	t.deepEqual(sliceState, {page: 1}, 'should have reset to the first page');
 });
 
-test('table directive: search should trigger an execution with the new state', (t) => {
+test('table directive: search should trigger an execution with the new state', t => {
 	const table = tableFactory({}, function ({tableState}) {
 		return {
 			exec() {
@@ -118,7 +118,7 @@ test('table directive: search should trigger an execution with the new state', (
 	t.deepEqual(newState, {"sort": {}, "slice": {"page": 1}, "filter": {}, "search": {"value": "bar"}});
 });
 
-test('table directive: eval should return the displayed collection based on table state by default', async function (t) {
+test('table directive: eval should return the displayed collection based on table state by default', async t => {
 	const tableState = {
 		sort: {pointer: 'id', direction: 'desc'},
 		search: {},
@@ -145,7 +145,7 @@ test('table directive: eval should return the displayed collection based on tabl
 	t.deepEqual(outputBis, [{"index": 0, "value": {"id": 1, "name": "foo"}}]);
 });
 
-test('table directive: eval should be able to take any state as input', async function (t) {
+test('table directive: eval should be able to take any state as input', async t => {
 	const tableState = {
 		sort: {pointer: 'id', direction: 'desc'},
 		search: {},
@@ -168,7 +168,7 @@ test('table directive: eval should be able to take any state as input', async fu
 	]);
 });
 
-test('table directive: eval should not dispatch any event', async function (t) {
+test('table directive: eval should not dispatch any event', async t => {
 	let counter = 0;
 	const tableState = {
 		sort: {pointer: 'id', direction: 'desc'},
@@ -197,7 +197,7 @@ test('table directive: eval should not dispatch any event', async function (t) {
 	}, 'table state should not have changed');
 });
 
-test('exec should first set the working state to true then false', async function (t) {
+test('exec should first set the working state to true then false', async t => {
 	let workingState;
 	const table = tableFactory({
 		data: [
@@ -214,7 +214,8 @@ test('exec should first set the working state to true then false', async functio
 	await wait(25);
 	t.equal(workingState, false);
 });
-test('exec should dispatch the display changed event with the new displayed value', async function (t) {
+
+test('exec should dispatch the display changed event with the new displayed value', async t => {
 	let displayed;
 	const tableState = {
 		sort: {pointer: 'id', direction: 'desc'},
@@ -239,7 +240,8 @@ test('exec should dispatch the display changed event with the new displayed valu
 		{"index": 1, "value": {"id": 2, "name": "blah"}}
 	]);
 });
-test('exec should dispatch the summary changed event with the new value', async function (t) {
+
+test('exec should dispatch the summary changed event with the new value', async t => {
 	let summary;
 	const tableState = {
 		sort: {pointer: 'id', direction: 'desc'},
@@ -259,10 +261,34 @@ test('exec should dispatch the summary changed event with the new value', async 
 	table.on(SUMMARY_CHANGED, val => summary = val);
 	table.exec();
 	await wait(25);
-	t.deepEqual(summary, {"page": 1, "size": 1, "filteredCount": 2}
-	);
+	t.deepEqual(summary, {"page": 1, "size": 1, "filteredCount": 2});
 });
-test('getTableState should return a deep copy of the tableState', (t) => {
+
+test('exec should update the filteredCount property', async t => {
+	let summary;
+	const tableState = {
+		sort: {pointer: 'id', direction: 'desc'},
+		search: {},
+		filter: {name: [{value: 'b'}]},
+		slice: {page: 1, size: 1}
+	};
+	const table = tableFactory({
+		data: [
+			{id: 1, name: 'foo'},
+			{id: 2, name: 'blah'},
+			{id: 3, name: 'bip'}
+		],
+		tableState
+	});
+	t.equal(table.filteredCount, 3, 'initially with the length of data array');
+	table.on(SUMMARY_CHANGED, val => summary = val);
+	table.exec();
+	await wait(25);
+	t.deepEqual(summary, {"page": 1, "size": 1, "filteredCount": 2});
+	t.equal(table.filteredCount, 2, 'filtered count should have been updated');
+});
+
+test('getTableState should return a deep copy of the tableState', t => {
 	const tableState = {
 		sort: {pointer: 'foo'},
 		slice: {page: 2, size: 25},

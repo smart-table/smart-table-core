@@ -27,14 +27,14 @@
   },
   "homepage": "https://github.com/smart-table/smart-table-core#readme",
   "devDependencies": {
-    "rollup": "^0.56.5",
     "rollup-plugin-commonjs": "^9.1.0",
-    "rollup-plugin-node-resolve": "^3.2.0",
     "tap-diff": "^0.1.1",
     "xo": "^0.20.3",
     "zora": "^2.0.0"
   },
   "dependencies": {
+    "rollup": "^0.57.1",
+    "rollup-plugin-node-resolve": "^3.3.0",
     "smart-table-events": "^1.0.4",
     "smart-table-filter": "^1.0.2",
     "smart-table-json-pointer": "^1.0.3",

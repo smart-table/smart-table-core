@@ -5,7 +5,7 @@ const sliceListener = proxyListener({[PAGE_CHANGED]: 'onPageChange', [SUMMARY_CH
 
 export default function ({table}) {
 	let {slice: {page: currentPage, size: currentSize}} = table.getTableState();
-	let itemListLength = table.length;
+	let itemListLength = table.filteredCount;
 
 	const api = {
 		selectPage(p) {
