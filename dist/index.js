@@ -33,12 +33,14 @@ const curriedPointer = path => {
 
 var table = ({sortFactory, tableState, data, filterFactory, searchFactory}) => {
 	let filteredCount = data.length;
+	let matchingItems = data;
 	const table = smartTableEvents.emitter();
 	const sortPointer = curriedPointer('sort');
 	const slicePointer = curriedPointer('slice');
 	const filterPointer = curriedPointer('filter');
 	const searchPointer = curriedPointer('search');
 
+	// We need to register in case the summary comes from outside (like server data)
 	table.on(SUMMARY_CHANGED, ({filteredCount: count}) => {
 		filteredCount = count;
 	});
@@ -46,11 +48,14 @@ var table = ({sortFactory, tableState, data, filterFactory, searchFactory}) => {
 	const safeAssign = smartTableOperators.curry((base, extension) => Object.assign({}, base, extension));
 	const dispatch = smartTableOperators.curry(table.dispatch, 2);
 
-	const dispatchSummary = filtered => dispatch(SUMMARY_CHANGED, {
-		page: tableState.slice.page,
-		size: tableState.slice.size,
-		filteredCount: filtered.length
-	});
+	const dispatchSummary = filtered => {
+		matchingItems = filtered;
+		return dispatch(SUMMARY_CHANGED, {
+			page: tableState.slice.page,
+			size: tableState.slice.size,
+			filteredCount: filtered.length
+		});
+	};
 
 	const exec = ({processingDelay = 20} = {}) => {
 		table.dispatch(EXEC_CHANGED, {working: true});
@@ -111,6 +116,9 @@ var table = ({sortFactory, tableState, data, filterFactory, searchFactory}) => {
 				filter$$1[prop] = tableState.filter[prop].map(v => Object.assign({}, v));
 			}
 			return {sort: sort$$1, search: search$$1, slice, filter: filter$$1};
+		},
+		getMatchingItems() {
+			return [...matchingItems];
 		}
 	};
 
