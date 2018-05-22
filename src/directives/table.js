@@ -20,12 +20,14 @@ const curriedPointer = path => {
 
 export default ({sortFactory, tableState, data, filterFactory, searchFactory}) => {
 	let filteredCount = data.length;
+	let matchingItems = data;
 	const table = emitter();
 	const sortPointer = curriedPointer('sort');
 	const slicePointer = curriedPointer('slice');
 	const filterPointer = curriedPointer('filter');
 	const searchPointer = curriedPointer('search');
 
+	// We need to register in case the summary comes from outside (like server data)
 	table.on(SUMMARY_CHANGED, ({filteredCount: count}) => {
 		filteredCount = count;
 	});
@@ -33,11 +35,14 @@ export default ({sortFactory, tableState, data, filterFactory, searchFactory}) =
 	const safeAssign = curry((base, extension) => Object.assign({}, base, extension));
 	const dispatch = curry(table.dispatch, 2);
 
-	const dispatchSummary = filtered => dispatch(SUMMARY_CHANGED, {
-		page: tableState.slice.page,
-		size: tableState.slice.size,
-		filteredCount: filtered.length
-	});
+	const dispatchSummary = filtered => {
+		matchingItems = filtered;
+		return dispatch(SUMMARY_CHANGED, {
+			page: tableState.slice.page,
+			size: tableState.slice.size,
+			filteredCount: filtered.length
+		});
+	};
 
 	const exec = ({processingDelay = 20} = {}) => {
 		table.dispatch(EXEC_CHANGED, {working: true});
@@ -98,6 +103,9 @@ export default ({sortFactory, tableState, data, filterFactory, searchFactory}) =
 				filter[prop] = tableState.filter[prop].map(v => Object.assign({}, v));
 			}
 			return {sort, search, slice, filter};
+		},
+		getMatchingItems() {
+			return [...matchingItems];
 		}
 	};
 

@@ -66,7 +66,7 @@ test('table directive: slice should trigger an execution with the new state', t 
 		};
 	});
 	const newState = table.slice({page: 4, size: 12});
-	t.deepEqual(newState, {"sort": {}, "slice": {"page": 4, "size": 12}, "filter": {}, "search": {}});
+	t.deepEqual(newState, {'sort': {}, 'slice': {'page': 4, 'size': 12}, 'filter': {}, 'search': {}});
 });
 
 test('table directive: filter should dispatch the mutated filter state', t => {
@@ -90,7 +90,7 @@ test('table directive: filter should trigger an execution with the new state', t
 		};
 	});
 	const newState = table.filter({foo: [{value: 'bar'}]});
-	t.deepEqual(newState, {"sort": {}, "slice": {"page": 1}, "filter": {"foo": [{"value": "bar"}]}, "search": {}}
+	t.deepEqual(newState, {'sort': {}, 'slice': {'page': 1}, 'filter': {'foo': [{'value': 'bar'}]}, 'search': {}}
 	);
 });
 
@@ -115,7 +115,7 @@ test('table directive: search should trigger an execution with the new state', t
 		};
 	});
 	const newState = table.search({value: 'bar'});
-	t.deepEqual(newState, {"sort": {}, "slice": {"page": 1}, "filter": {}, "search": {"value": "bar"}});
+	t.deepEqual(newState, {'sort': {}, 'slice': {'page': 1}, 'filter': {}, 'search': {'value': 'bar'}});
 });
 
 test('table directive: eval should return the displayed collection based on table state by default', async t => {
@@ -135,14 +135,14 @@ test('table directive: eval should return the displayed collection based on tabl
 	});
 	const output = await table.eval();
 	t.deepEqual(output, [
-		{"index": 2, "value": {"id": 3, "name": "bip"}},
-		{"index": 1, "value": {"id": 2, "name": "blah"}}
+		{'index': 2, 'value': {'id': 3, 'name': 'bip'}},
+		{'index': 1, 'value': {'id': 2, 'name': 'blah'}}
 	]);
 
 	//table state has mutated !
 	tableState.slice = {page: 2, size: 2};
 	const outputBis = await table.eval();
-	t.deepEqual(outputBis, [{"index": 0, "value": {"id": 1, "name": "foo"}}]);
+	t.deepEqual(outputBis, [{'index': 0, 'value': {'id': 1, 'name': 'foo'}}]);
 });
 
 test('table directive: eval should be able to take any state as input', async t => {
@@ -162,9 +162,9 @@ test('table directive: eval should be able to take any state as input', async t 
 	});
 	const output = await table.eval({sort: {}, slice: {}, filter: {}, search: {}});
 	t.deepEqual(output, [
-		{"index": 0, "value": {"id": 1, "name": "foo"}},
-		{"index": 1, "value": {"id": 2, "name": "blah"}},
-		{"index": 2, "value": {"id": 3, "name": "bip"}}
+		{'index': 0, 'value': {'id': 1, 'name': 'foo'}},
+		{'index': 1, 'value': {'id': 2, 'name': 'blah'}},
+		{'index': 2, 'value': {'id': 3, 'name': 'bip'}}
 	]);
 });
 
@@ -236,8 +236,8 @@ test('exec should dispatch the display changed event with the new displayed valu
 	table.exec();
 	await wait(25);
 	t.deepEqual(displayed, [
-		{"index": 2, "value": {"id": 3, "name": "bip"}},
-		{"index": 1, "value": {"id": 2, "name": "blah"}}
+		{'index': 2, 'value': {'id': 3, 'name': 'bip'}},
+		{'index': 1, 'value': {'id': 2, 'name': 'blah'}}
 	]);
 });
 
@@ -261,7 +261,7 @@ test('exec should dispatch the summary changed event with the new value', async 
 	table.on(SUMMARY_CHANGED, val => summary = val);
 	table.exec();
 	await wait(25);
-	t.deepEqual(summary, {"page": 1, "size": 1, "filteredCount": 2});
+	t.deepEqual(summary, {'page': 1, 'size': 1, 'filteredCount': 2});
 });
 
 test('exec should update the filteredCount property', async t => {
@@ -284,7 +284,7 @@ test('exec should update the filteredCount property', async t => {
 	table.on(SUMMARY_CHANGED, val => summary = val);
 	table.exec();
 	await wait(25);
-	t.deepEqual(summary, {"page": 1, "size": 1, "filteredCount": 2});
+	t.deepEqual(summary, {'page': 1, 'size': 1, 'filteredCount': 2});
 	t.equal(table.filteredCount, 2, 'filtered count should have been updated');
 });
 
@@ -302,4 +302,33 @@ test('getTableState should return a deep copy of the tableState', t => {
 	t.ok(!Object.is(copy.search, tableState.search));
 	t.ok(!Object.is(copy.filter, tableState.filter));
 	t.ok(!Object.is(copy.slice, tableState.slice));
+});
+
+test('getMatchingItems should return the whole collection of matching items regardless of pagination', async t => {
+	const tableState = {
+		slice: {page: 1, size: 1},
+		filter: {},
+		search: {},
+		sort: {}
+	};
+
+	const data = [
+		{value: 1},
+		{value: 2},
+		{value: 3},
+		{value: 4}
+	];
+
+	const table = tableFactory({data, tableState});
+	table.exec();
+	await wait(25);
+	const evalResult = await table.eval();
+	t.deepEqual(evalResult, [{index: 0, value: {value: 1}}]);
+	t.deepEqual(table.getMatchingItems(), data);
+
+	table.filter({value: [{operator: 'gt', value: 2}]});
+	await wait(25);
+	const secondEvalResult = await table.eval();
+	t.deepEqual(secondEvalResult, [{index: 2, value: {value: 3}}]);
+	t.deepEqual(table.getMatchingItems(), [{value: 3}, {value: 4}]);
 });
