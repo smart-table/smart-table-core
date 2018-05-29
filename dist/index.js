@@ -233,18 +233,29 @@ function sliceDirective ({table}) {
 	return directive;
 }
 
+const debounce = (fn, time) => {
+	let timer = null;
+	return (...args) => {
+		if (timer !== null) {
+			clearTimeout(timer);
+		}
+		timer = setTimeout(() => fn(...args), time);
+	};
+};
+
 const sortListeners = smartTableEvents.proxyListener({[TOGGLE_SORT]: 'onSortToggle'});
 const directions = ['asc', 'desc'];
 
-function sortDirective ({pointer: pointer$$1, table, cycle = false}) {
+function sortDirective ({pointer: pointer$$1, table, cycle = false, debounceTime = 0}) {
 	const cycleDirections = cycle === true ? ['none'].concat(directions) : [...directions].reverse();
+	const commit = debounce(table.sort, debounceTime);
 	let hit = 0;
 
 	const directive = Object.assign({
 		toggle() {
 			hit++;
 			const direction = cycleDirections[hit % cycleDirections.length];
-			return table.sort({pointer: pointer$$1, direction});
+			return commit({pointer: pointer$$1, direction});
 		},
 		state() {
 			return table.getTableState().sort;
@@ -252,11 +263,11 @@ function sortDirective ({pointer: pointer$$1, table, cycle = false}) {
 	}, sortListeners({emitter: table}));
 
 	directive.onSortToggle(({pointer: p}) => {
-		if (pointer$$1 !== p) {
-			hit = 0;
-		}
+		hit = pointer$$1 !== p ? 0 : hit;
 	});
 
+	const {pointer: statePointer, direction = 'asc'} = directive.state();
+	hit = statePointer === pointer$$1 ? (direction === 'asc' ? 1 : 2) : 0;
 	return directive;
 }
 

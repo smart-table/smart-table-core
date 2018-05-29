@@ -438,18 +438,29 @@ var smartTableCore = (function (exports) {
 		return directive;
 	}
 
+	const debounce = (fn, time) => {
+		let timer = null;
+		return (...args) => {
+			if (timer !== null) {
+				clearTimeout(timer);
+			}
+			timer = setTimeout(() => fn(...args), time);
+		};
+	};
+
 	const sortListeners = proxyListener({[TOGGLE_SORT]: 'onSortToggle'});
 	const directions = ['asc', 'desc'];
 
-	function sortDirective ({pointer, table, cycle = false}) {
+	function sortDirective ({pointer, table, cycle = false, debounceTime = 0}) {
 		const cycleDirections = cycle === true ? ['none'].concat(directions) : [...directions].reverse();
+		const commit = debounce(table.sort, debounceTime);
 		let hit = 0;
 
 		const directive = Object.assign({
 			toggle() {
 				hit++;
 				const direction = cycleDirections[hit % cycleDirections.length];
-				return table.sort({pointer, direction});
+				return commit({pointer, direction});
 			},
 			state() {
 				return table.getTableState().sort;
@@ -457,11 +468,11 @@ var smartTableCore = (function (exports) {
 		}, sortListeners({emitter: table}));
 
 		directive.onSortToggle(({pointer: p}) => {
-			if (pointer !== p) {
-				hit = 0;
-			}
+			hit = pointer !== p ? 0 : hit;
 		});
 
+		const {pointer: statePointer, direction = 'asc'} = directive.state();
+		hit = statePointer === pointer ? (direction === 'asc' ? 1 : 2) : 0;
 		return directive;
 	}
 
