@@ -153,14 +153,50 @@ var smartTableCore = (function (exports) {
 		return array => array.filter(filterPredicate);
 	}
 
-	function search (searchConf = {}) {
-		const {value, scope = []} = searchConf;
-		const searchPointers = scope.map(field => pointer(field).get);
-		if (scope.length === 0 || !value) {
-			return array => array;
-		}
-		return array => array.filter(item => searchPointers.some(p => String(p(item)).includes(String(value))));
+	function re(strs, ...substs) {
+	    let reStr = transformRaw(strs.raw[0]);
+	    for (const [i, subst] of substs.entries()) {
+	        if (subst instanceof RegExp) {
+	            reStr += subst.source;
+	        } else if (typeof subst === 'string') {
+	            reStr += quoteText(subst);
+	        } else {
+	            throw new Error('Illegal substitution: '+subst);
+	        }
+	        reStr += transformRaw(strs.raw[i+1]);
+	    }
+	    let flags = '';
+	    if (reStr.startsWith('/')) {
+	        const lastSlashIndex = reStr.lastIndexOf('/');
+	        if (lastSlashIndex === 0) {
+	            throw new Error('If the `re` string starts with a slash, it must end with a second slash and zero or more flags: '+reStr);
+	        }
+	        flags = reStr.slice(lastSlashIndex+1);
+	        reStr = reStr.slice(1, lastSlashIndex);
+	    }
+	    return new RegExp(reStr, flags);
 	}
+
+	function transformRaw(str) {
+	    return str.replace(/\\`/g, '`');
+	}
+
+	/**
+	 * All special characters are escaped, because you may want to quote several characters inside parentheses or square brackets.
+	 */
+	function quoteText(text) {
+	    return text.replace(/[\\^$.*+?()[\]{}|=!<>:-]/g, '\\$&');
+	}
+
+	const regexp = (input) => {
+	    const { value, scope = [], escape = false, flags = '' } = input;
+	    const searchPointers = scope.map(field => pointer(field).get);
+	    if (scope.length === 0 || !value) {
+	        return (array) => array;
+	    }
+	    const regex = escape === true ? re `/${value}/${flags}` : new RegExp(value, flags);
+	    return (array) => array.filter(item => searchPointers.some(p => regex.test(String(p(item)))));
+	};
 
 	function emitter() {
 		const listenersLists = {};
@@ -348,7 +384,7 @@ var smartTableCore = (function (exports) {
 	function tableDirective ({
 														 sortFactory$$1 = sortFactory,
 														 filterFactory = filter,
-														 searchFactory = search,
+														 searchFactory = regexp,
 														 tableState = {sort: {}, slice: {page: 1}, filter: {}, search: {}},
 														 data = []
 													 }, ...tableDirectives) {
@@ -484,7 +520,7 @@ var smartTableCore = (function (exports) {
 
 	var workingIndicatorDirective = ({table}) => executionListener({emitter: table});
 
-	const search$1 = searchDirective;
+	const search = searchDirective;
 	const slice = sliceDirective;
 	const summary = summaryDirective;
 	const sort = sortDirective;
@@ -492,7 +528,7 @@ var smartTableCore = (function (exports) {
 	const workingIndicator = workingIndicatorDirective;
 	const table$1 = tableDirective;
 
-	exports.search = search$1;
+	exports.search = search;
 	exports.slice = slice;
 	exports.summary = summary;
 	exports.sort = sort;

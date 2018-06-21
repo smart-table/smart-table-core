@@ -3,7 +3,7 @@ import pointer from 'smart-table-json-pointer';
 import { emitter, proxyListener } from 'smart-table-events';
 import sort from 'smart-table-sort';
 import filter from 'smart-table-filter';
-import search from 'smart-table-search';
+import { regexp } from 'smart-table-search';
 
 var sliceFactory = ({page = 1, size} = {}) => (array = []) => {
 	const actualSize = size || array.length;
@@ -103,13 +103,13 @@ var table = ({sortFactory, tableState, data, filterFactory, searchFactory}) => {
 		},
 		getTableState() {
 			const sort$$1 = Object.assign({}, tableState.sort);
-			const search$$1 = Object.assign({}, tableState.search);
+			const search = Object.assign({}, tableState.search);
 			const slice = Object.assign({}, tableState.slice);
 			const filter$$1 = {};
 			for (const prop of Object.getOwnPropertyNames(tableState.filter)) {
 				filter$$1[prop] = tableState.filter[prop].map(v => Object.assign({}, v));
 			}
-			return {sort: sort$$1, search: search$$1, slice, filter: filter$$1};
+			return {sort: sort$$1, search, slice, filter: filter$$1};
 		},
 		getMatchingItems() {
 			return [...matchingItems];
@@ -137,7 +137,7 @@ var table = ({sortFactory, tableState, data, filterFactory, searchFactory}) => {
 function tableDirective ({
 													 sortFactory = sort,
 													 filterFactory = filter,
-													 searchFactory = search,
+													 searchFactory = regexp,
 													 tableState = {sort: {}, slice: {page: 1}, filter: {}, search: {}},
 													 data = []
 												 }, ...tableDirectives) {
@@ -273,7 +273,7 @@ const executionListener = proxyListener({[EXEC_CHANGED]: 'onExecutionChange'});
 
 var workingIndicatorDirective = ({table}) => executionListener({emitter: table});
 
-const search$1 = searchDirective;
+const search = searchDirective;
 const slice = sliceDirective;
 const summary = summaryDirective;
 const sort$1 = sortDirective;
@@ -281,4 +281,4 @@ const filter$1 = filterDirective;
 const workingIndicator = workingIndicatorDirective;
 const table$1 = tableDirective;
 
-export { search$1 as search, slice, summary, sort$1 as sort, filter$1 as filter, workingIndicator, table$1 as table };
+export { search, slice, summary, sort$1 as sort, filter$1 as filter, workingIndicator, table$1 as table };

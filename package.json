@@ -31,7 +31,7 @@
     "rollup-plugin-commonjs": "^9.1.0",
     "rollup-plugin-node-resolve": "^3.3.0",
     "tap-diff": "^0.1.1",
-    "xo": "^0.20.3",
+    "xo": "^0.21.1",
     "zora": "^2.0.0"
   },
   "dependencies": {
@@ -39,7 +39,7 @@
     "smart-table-filter": "^1.0.2",
     "smart-table-json-pointer": "^1.0.3",
     "smart-table-operators": "^2.0.4",
-    "smart-table-search": "^1.0.3",
+    "smart-table-search": "^2.0.0",
     "smart-table-sort": "^1.0.2"
   }
 }

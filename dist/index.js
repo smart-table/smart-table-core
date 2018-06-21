@@ -9,7 +9,7 @@ var pointer = _interopDefault(require('smart-table-json-pointer'));
 var smartTableEvents = require('smart-table-events');
 var sort = _interopDefault(require('smart-table-sort'));
 var filter = _interopDefault(require('smart-table-filter'));
-var search = _interopDefault(require('smart-table-search'));
+var smartTableSearch = require('smart-table-search');
 
 var sliceFactory = ({page = 1, size} = {}) => (array = []) => {
 	const actualSize = size || array.length;
@@ -109,13 +109,13 @@ var table = ({sortFactory, tableState, data, filterFactory, searchFactory}) => {
 		},
 		getTableState() {
 			const sort$$1 = Object.assign({}, tableState.sort);
-			const search$$1 = Object.assign({}, tableState.search);
+			const search = Object.assign({}, tableState.search);
 			const slice = Object.assign({}, tableState.slice);
 			const filter$$1 = {};
 			for (const prop of Object.getOwnPropertyNames(tableState.filter)) {
 				filter$$1[prop] = tableState.filter[prop].map(v => Object.assign({}, v));
 			}
-			return {sort: sort$$1, search: search$$1, slice, filter: filter$$1};
+			return {sort: sort$$1, search, slice, filter: filter$$1};
 		},
 		getMatchingItems() {
 			return [...matchingItems];
@@ -143,7 +143,7 @@ var table = ({sortFactory, tableState, data, filterFactory, searchFactory}) => {
 function tableDirective ({
 													 sortFactory = sort,
 													 filterFactory = filter,
-													 searchFactory = search,
+													 searchFactory = smartTableSearch.regexp,
 													 tableState = {sort: {}, slice: {page: 1}, filter: {}, search: {}},
 													 data = []
 												 }, ...tableDirectives) {
@@ -279,7 +279,7 @@ const executionListener = smartTableEvents.proxyListener({[EXEC_CHANGED]: 'onExe
 
 var workingIndicatorDirective = ({table}) => executionListener({emitter: table});
 
-const search$1 = searchDirective;
+const search = searchDirective;
 const slice = sliceDirective;
 const summary = summaryDirective;
 const sort$1 = sortDirective;
@@ -287,7 +287,7 @@ const filter$1 = filterDirective;
 const workingIndicator = workingIndicatorDirective;
 const table$1 = tableDirective;
 
-exports.search = search$1;
+exports.search = search;
 exports.slice = slice;
 exports.summary = summary;
 exports.sort = sort$1;
