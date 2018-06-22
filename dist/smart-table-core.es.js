@@ -423,8 +423,8 @@ var filterDirective = ({table, pointer, operator = 'includes', type = 'string'})
 const searchListener = proxyListener({[SEARCH_CHANGED]: 'onSearchChange'});
 
 var searchDirective = ({table, scope = []}) => Object.assign(searchListener({emitter: table}), {
-	search(input) {
-		return table.search({value: input, scope});
+	search(input, opts = {}) {
+		return table.search(Object.assign({}, {value: input, scope}, opts));
 	},
 	state() {
 		return table.getTableState().search;

@@ -10,7 +10,7 @@ const fakeTable = () => {
 	return table;
 };
 
-test('search directive should be able to register listener', (t) => {
+test('search directive should be able to register listener', t => {
 	let counter = 0;
 	const table = fakeTable();
 	const dir = search({table});
@@ -18,11 +18,17 @@ test('search directive should be able to register listener', (t) => {
 	table.dispatch(SEARCH_CHANGED);
 	t.equal(counter, 1, 'should have updated the counter');
 });
-test('search directive should call table search method passing the appropriate argument', (t) => {
+test('search directive should call table search method passing the appropriate argument', t => {
 	const table = fakeTable();
 	const dir = search({table, scope: ['foo', 'bar.woot']});
 	const arg = dir.search(42);
 	t.deepEqual(arg, {value: 42, scope: ['foo', 'bar.woot']});
+});
+test('search directive should be able to pass extra options', t => {
+	const table = fakeTable();
+	const dir = search({table, scope: ['foo', 'bar.woot']});
+	const arg = dir.search(42, {flags: 'i'});
+	t.deepEqual(arg, {value: 42, scope: ['foo', 'bar.woot'], flags: 'i'});
 });
 test('search directive should return the search part of the table state', t => {
 	const table = fakeTable();
