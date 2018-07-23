@@ -1,10 +1,10 @@
-import sort from 'smart-table-sort';
-import filter from 'smart-table-filter';
+import {defaultSortFactory} from 'smart-table-sort';
+import {filter} from 'smart-table-filter';
 import {regexp} from 'smart-table-search';
 import table from './directives/table';
 
 export default function ({
-													 sortFactory = sort,
+													 sortFactory = defaultSortFactory,
 													 filterFactory = filter,
 													 searchFactory = regexp,
 													 tableState = {sort: {}, slice: {page: 1}, filter: {}, search: {}},

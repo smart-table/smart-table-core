@@ -36,10 +36,10 @@
   },
   "dependencies": {
     "smart-table-events": "^1.0.4",
-    "smart-table-filter": "^1.0.2",
+    "smart-table-filter": "^2.0.0",
     "smart-table-json-pointer": "^1.0.3",
     "smart-table-operators": "^2.0.4",
     "smart-table-search": "^2.0.0",
-    "smart-table-sort": "^1.0.2"
+    "smart-table-sort": "^2.0.0-0"
   }
 }

@@ -1,8 +1,8 @@
 import { curry, tap, compose } from 'smart-table-operators';
 import pointer from 'smart-table-json-pointer';
 import { emitter, proxyListener } from 'smart-table-events';
-import sort from 'smart-table-sort';
-import filter from 'smart-table-filter';
+import { defaultSortFactory } from 'smart-table-sort';
+import { filter } from 'smart-table-filter';
 import { regexp } from 'smart-table-search';
 
 var sliceFactory = ({page = 1, size} = {}) => (array = []) => {
@@ -102,14 +102,14 @@ var table = ({sortFactory, tableState, data, filterFactory, searchFactory}) => {
 			table.on(DISPLAY_CHANGED, fn);
 		},
 		getTableState() {
-			const sort$$1 = Object.assign({}, tableState.sort);
+			const sort = Object.assign({}, tableState.sort);
 			const search = Object.assign({}, tableState.search);
 			const slice = Object.assign({}, tableState.slice);
 			const filter$$1 = {};
 			for (const prop of Object.getOwnPropertyNames(tableState.filter)) {
 				filter$$1[prop] = tableState.filter[prop].map(v => Object.assign({}, v));
 			}
-			return {sort: sort$$1, search, slice, filter: filter$$1};
+			return {sort, search, slice, filter: filter$$1};
 		},
 		getMatchingItems() {
 			return [...matchingItems];
@@ -135,7 +135,7 @@ var table = ({sortFactory, tableState, data, filterFactory, searchFactory}) => {
 };
 
 function tableDirective ({
-													 sortFactory = sort,
+													 sortFactory = defaultSortFactory,
 													 filterFactory = filter,
 													 searchFactory = regexp,
 													 tableState = {sort: {}, slice: {page: 1}, filter: {}, search: {}},
@@ -276,9 +276,9 @@ var workingIndicatorDirective = ({table}) => executionListener({emitter: table})
 const search = searchDirective;
 const slice = sliceDirective;
 const summary = summaryDirective;
-const sort$1 = sortDirective;
+const sort = sortDirective;
 const filter$1 = filterDirective;
 const workingIndicator = workingIndicatorDirective;
 const table$1 = tableDirective;
 
-export { search, slice, summary, sort$1 as sort, filter$1 as filter, workingIndicator, table$1 as table };
+export { search, slice, summary, sort, filter$1 as filter, workingIndicator, table$1 as table };
