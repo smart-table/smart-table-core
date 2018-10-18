@@ -2,8 +2,8 @@ import {curry, tap, compose} from 'smart-table-operators';
 import {pointer} from 'smart-table-json-pointer';
 import {emitter, Emitter} from 'smart-table-events';
 import {SortConfiguration} from './sort';
-import {SearchConfiguration} from './search';
-import {FilterConfiguration} from './filter';
+import {SearchConfiguration} from 'smart-table-search';
+import {FilterConfiguration} from 'smart-table-filter';
 import {sliceFactory, SliceConfiguration} from '../slice';
 
 export const enum SmartTableEvents {

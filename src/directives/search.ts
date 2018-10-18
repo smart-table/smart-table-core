@@ -1,17 +1,12 @@
-import {proxyListener} from 'smart-table-events';
-import {ProxyEmitter} from 'smart-table-events';
+import {proxyListener, ProxyEmitter} from 'smart-table-events';
 import {SmartTable, SmartTableEvents} from './table';
+import {SearchConfiguration} from 'smart-table-search';
 
 interface SearchProxy extends ProxyEmitter {
     onSearchChange(listener: SearchChangeCallback): SearchDirective;
 }
 
-export interface SearchConfiguration {
-    scope?: string[];
-    value?: string;
-}
-
-// export {SearchConfiguration} from 'smart-table-search';// Todo
+export {SearchConfiguration} from 'smart-table-search';
 
 export interface SearchChangeCallback {
     (searchState: SearchConfiguration): void;

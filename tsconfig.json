@@ -8,6 +8,7 @@
     "moduleResolution": "node",
     "noImplicitAny": false,
     "preserveConstEnums": true,
+    "declaration": true,
     "target": "es2017"
   },
   "include": [

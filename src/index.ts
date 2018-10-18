@@ -1,10 +1,9 @@
 import {defaultSortFactory} from 'smart-table-sort';
-import {filter} from 'smart-table-filter';
+import {filter, FilterConfiguration} from 'smart-table-filter';
 import {regexp} from 'smart-table-search';
 import {tableDirective, SmartTable, TableState} from './directives/table';
+import {SearchConfiguration} from 'smart-table-search';
 import {SortConfiguration} from './directives/sort';
-import {SearchConfiguration} from './directives/search';
-import {FilterConfiguration} from './directives/filter';
 
 export interface SmartTableInput<T> {
     sortFactory?: (conf: SortConfiguration) => (items: T[]) => T[];

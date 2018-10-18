@@ -1,7 +1,6 @@
-import {proxyListener} from 'smart-table-events';
+import {proxyListener, ProxyEmitter} from 'smart-table-events';
 import {SmartTable, SmartTableEvents} from './table';
 import {Summary, SummaryDirective} from './summary';
-import {ProxyEmitter} from 'smart-table-events';
 import {SliceConfiguration} from '../slice';
 
 export interface PageChangeCallback {

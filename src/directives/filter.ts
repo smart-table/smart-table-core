@@ -6,7 +6,7 @@ interface FilterProxy extends ProxyEmitter {
     onFilterChange(listener: FilterChangeCallback): FilterDirective;
 }
 
-export {FilterOperator, FilterConfiguration} from 'smart-table-filter';
+export {FilterConfiguration, FilterOperator} from 'smart-table-filter';
 
 export interface FilterChangeCallback {
     (filterState: FilterConfiguration): void;

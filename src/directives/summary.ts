@@ -1,6 +1,5 @@
-import {proxyListener} from 'smart-table-events';
+import {proxyListener, ProxyEmitter} from 'smart-table-events';
 import {SmartTable, SmartTableEvents} from './table';
-import {ProxyEmitter} from 'smart-table-events';
 
 export interface SummaryDirective extends ProxyEmitter {
     onSummaryChange(listener: SummaryChangeCallback): SummaryDirective;
