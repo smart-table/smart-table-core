@@ -1,10 +1,10 @@
 export default {
-	input: './index.js',
+	input: './dist/src/index.js',
 	output: [{
 		format: 'es',
-		file: './dist/index.mjs'
+		file: './dist/bundle/index.mjs'
 	}, {
 		format: 'cjs',
-		file: './dist/index.js'
+		file: './dist/bundle/index.js'
 	}]
 }

@@ -1,8 +1,0 @@
-export const TOGGLE_SORT = 'TOGGLE_SORT';
-export const DISPLAY_CHANGED = 'DISPLAY_CHANGED';
-export const PAGE_CHANGED = 'CHANGE_PAGE';
-export const EXEC_CHANGED = 'EXEC_CHANGED';
-export const FILTER_CHANGED = 'FILTER_CHANGED';
-export const SUMMARY_CHANGED = 'SUMMARY_CHANGED';
-export const SEARCH_CHANGED = 'SEARCH_CHANGED';
-export const EXEC_ERROR = 'EXEC_ERROR';
