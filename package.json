@@ -1,16 +1,16 @@
 {
   "name": "smart-table-core",
-  "version": "3.0.0",
+  "version": "3.0.0-0",
   "description": "smart-core directives",
   "main": "./dist/bundle/index",
-  "module": "./dist/bundle/index.mjs",
+  "module": "./dist/src/index.js",
   "typings": "./dist/src/index.ts",
   "directories": {
     "test": "test"
   },
   "scripts": {
     "test:ci": "npm run build && npm test",
-    "test": "rollup -c ./test/rollup.config.js | node | tap-diff",
+    "test": "rollup -c ./rollup/test.js | node | tap-diff",
     "build:clean": "rm -rf ./dist && mkdir -p ./dist/bundle && cp -r ./src ./dist/src",
     "build:compile": "tsc",
     "build:bundle": "rollup -c ./rollup/build.js && rollup -c ./rollup/cdn.js",
@@ -48,7 +48,7 @@
     "smart-table-events": "^1.0.7",
     "smart-table-filter": "^2.0.1",
     "smart-table-operators": "^2.0.6",
-    "smart-table-search": "^2.0.2",
+    "smart-table-search": "^2.0.3",
     "smart-table-sort": "^2.0.1"
   }
 }

@@ -38,7 +38,7 @@ export interface PaginationDirectiveConfiguration<T> {
 }
 
 
-export default <T>({table}: PaginationDirectiveConfiguration<T>): PaginationDirective => {
+export const paginationDirective = <T>({table}: PaginationDirectiveConfiguration<T>): PaginationDirective => {
     let {slice: {page: currentPage, size: currentSize}} = table.getTableState();
     let itemListLength = table.filteredCount;
 
@@ -76,4 +76,4 @@ export default <T>({table}: PaginationDirectiveConfiguration<T>): PaginationDire
     });
 
     return directive;
-}
+};
