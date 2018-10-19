@@ -1,6 +1,6 @@
 import test from 'zora';
 import {emitter} from 'smart-table-events';
-import {SmartTableEvents as evts, summaryDirective as summary} from '../../dist/src';
+import {SmartTableEvents as evts, summaryDirective as summary} from '../../dist/bundle/module';
 
 test('summary directive should be able to register listener', (t) => {
     let counter = 0;

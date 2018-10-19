@@ -1,5 +1,5 @@
 import test from 'zora';
-import {SmartTableEvents as evts, paginationDirective as pagination} from '../../dist/src';
+import {SmartTableEvents as evts, paginationDirective as pagination} from '../../dist/bundle/module';
 import {emitter} from 'smart-table-events';
 
 const fakeTable = (slice = {}) => {

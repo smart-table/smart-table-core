@@ -1,4 +1,4 @@
-import {SmartTableEvents as evs, filterDirective as filter} from '../../dist/src';
+import {SmartTableEvents as evs, filterDirective as filter} from '../../dist/bundle/module';
 import {emitter} from 'smart-table-events';
 import test from 'zora';
 

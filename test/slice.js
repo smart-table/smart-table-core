@@ -1,5 +1,5 @@
 import test from 'zora';
-import {sliceFactory as slicer} from '../dist/src/slice';
+import {sliceFactory as slicer} from '../dist/bundle/module';
 
 test('slice: get a page with specified size', (t) => {
     const input = [1, 2, 3, 4, 5, 6, 7];

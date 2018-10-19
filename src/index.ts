@@ -56,4 +56,4 @@ export * from './directives/sort';
 export * from './directives/summary';
 export * from './directives/table';
 export * from './directives/working-indicator';
-export {SliceConfiguration} from './slice';
+export * from './slice';

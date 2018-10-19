@@ -1,4 +1,4 @@
-import {SmartTableEvents as evts, workingIndicatorDirective as workingIndicator} from '../../dist/src';
+import {SmartTableEvents as evts, workingIndicatorDirective as workingIndicator} from '../../dist/bundle/module';
 import {emitter} from 'smart-table-events';
 import test from 'zora';
 
