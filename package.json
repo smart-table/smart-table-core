@@ -1,6 +1,6 @@
 {
   "name": "smart-table-core",
-  "version": "3.0.1",
+  "version": "3.0.2",
   "description": "smart-core directives",
   "main": "./dist/bundle/index",
   "types": "./dist/declarations/index.d.ts",
@@ -39,7 +39,6 @@
     "rollup": "^0.66.6",
     "rollup-plugin-commonjs": "^9.2.0",
     "rollup-plugin-node-resolve": "^3.4.0",
-    "smart-table-json-pointer": "^2.0.4",
     "tap-diff": "^0.1.1",
     "typescript": "^3.1.3",
     "zora": "^2.0.1"
@@ -47,6 +46,7 @@
   "dependencies": {
     "smart-table-events": "^1.0.10",
     "smart-table-filter": "^2.0.4",
+    "smart-table-json-pointer": "^2.0.4",
     "smart-table-operators": "^2.0.10",
     "smart-table-search": "^2.0.6",
     "smart-table-sort": "^2.0.4"
