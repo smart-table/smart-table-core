@@ -19,7 +19,7 @@ interface SortProxy extends ProxyEmitter {
 
 export interface SortDirective extends SortProxy {
 
-    toggle(input: string): void;
+    toggle(): void;
 
     state(): SortConfiguration;
 }
