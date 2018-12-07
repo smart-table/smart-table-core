@@ -2,6 +2,7 @@
 
 [![CircleCI](https://circleci.com/gh/smart-table/smart-table-core.svg?style=svg)](https://circleci.com/gh/smart-table/smart-table-core)
 [![Gitter](https://badges.gitter.im/join_chat.svg)](https://gitter.im/smart-table/Lobby)
+[![install size](https://packagephobia.now.sh/badge?p=ship-hold-querybuilder)](https://packagephobia.now.sh/result?p=ship-hold-querybuilder)
 
 smart table core programmatic behaviors (no view related)
 
