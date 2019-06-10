@@ -1,4 +1,4 @@
-import test from 'zora';
+import {test} from 'zora';
 import {smartTable} from '../dist/bundle/module';
 
 test('compose table factory', (t) => {

@@ -1,4 +1,4 @@
-import test from 'zora';
+import {test} from 'zora';
 import {sliceFactory as slicer} from '../dist/bundle/module';
 
 test('slice: get a page with specified size', (t) => {

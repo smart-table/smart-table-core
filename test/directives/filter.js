@@ -1,6 +1,6 @@
-import {SmartTableEvents as evs, filterDirective as filter} from '../../dist/bundle/module';
+import {filterDirective as filter, SmartTableEvents as evs} from '../../dist/bundle/module';
 import {emitter} from 'smart-table-events';
-import test from 'zora';
+import {test} from 'zora';
 
 const fakeTable = () => {
     const table = emitter();

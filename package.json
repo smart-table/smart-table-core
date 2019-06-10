@@ -9,8 +9,8 @@
     "test": "test"
   },
   "scripts": {
-    "test:ci": "npm run build && npm test",
-    "test": "rollup -c ./rollup/test.js | node | tap-diff",
+    "test:ci": "npm test | tap-set-exit",
+    "test": "rollup -c ./rollup/test.js | node ",
     "build:clean": "rm -rf ./dist && mkdir -p ./dist/bundle && cp -r ./src ./dist/src",
     "build:compile": "tsc",
     "build:bundle": "rollup -c ./rollup/build.js && rollup -c ./rollup/cdn.js",
@@ -36,12 +36,12 @@
   ],
   "homepage": "https://github.com/smart-table/smart-table-core#readme",
   "devDependencies": {
-    "rollup": "^0.66.6",
-    "rollup-plugin-commonjs": "^9.2.0",
+    "rollup": "^1.14.6",
+    "rollup-plugin-commonjs": "^10.0.0",
     "rollup-plugin-node-resolve": "^3.4.0",
-    "tap-diff": "^0.1.1",
-    "typescript": "^3.1.5",
-    "zora": "^2.0.1"
+    "tap-set-exit": "^1.1.1",
+    "typescript": "^3.5.1",
+    "zora": "^3.0.1"
   },
   "dependencies": {
     "smart-table-events": "^1.0.10",

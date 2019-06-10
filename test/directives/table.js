@@ -1,5 +1,10 @@
-import test from 'zora';
-import {smartTable as tableFactory, FilterOperator, SortDirection, SmartTableEvents as evts} from '../../dist/bundle/module';
+import {test} from 'zora';
+import {
+    FilterOperator,
+    smartTable as tableFactory,
+    SmartTableEvents as evts,
+    SortDirection
+} from '../../dist/bundle/module';
 
 const wait = time => new Promise(resolve => {
     setTimeout(() => {

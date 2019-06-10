@@ -1,15 +1,13 @@
 import resolve from 'rollup-plugin-node-resolve';
+import pkg from '../package.json';
+
+const name = pkg.name.replace(/-/g, '_');
 
 export default {
     input: './dist/src/index.js',
     output: [{
-        format: 'iife',
-        name: 'smartTableCore',
-        file: './dist/bundle/smart-table-core.js',
-        sourcemap: true
-    }, {
         format: 'es',
-        file: './dist/bundle/smart-table-core.es.js',
+        file: `./dist/bundle/${name}.js`,
         sourcemap: true
     }],
     plugins: [resolve()]

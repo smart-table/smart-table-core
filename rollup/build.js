@@ -1,13 +1,18 @@
+import pkg from '../package.json';
+
+const main = pkg.main;
+const module = pkg.module;
+
 export default {
     input: './dist/src/index.js',
     output: [{
         format: 'es',
-        file: './dist/bundle/index.mjs'
+        file: `${main + '.mjs'}`
     }, {
         format: 'es',
-        file: './dist/bundle/module.js'
+        file: `${module}`
     }, {
         format: 'cjs',
-        file: './dist/bundle/index.js'
+        file: `${main + '.js'}`
     }]
 };

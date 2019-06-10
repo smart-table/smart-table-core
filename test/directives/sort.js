@@ -1,4 +1,4 @@
-import test from 'zora';
+import {test} from 'zora';
 import {SmartTableEvents as evts, SortDirection, sortDirective as sort} from '../../dist/bundle/module';
 import {emitter} from 'smart-table-events';
 

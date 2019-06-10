@@ -1,4 +1,4 @@
-import test from 'zora';
+import {test} from 'zora';
 import {emitter} from 'smart-table-events';
 import {SmartTableEvents as evts, summaryDirective as summary} from '../../dist/bundle/module';
 
