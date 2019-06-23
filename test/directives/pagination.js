@@ -74,5 +74,5 @@ test('pagination directive should return the pagination part of the table state 
     const table = fakeTable({size: 25, page: 3, filteredCount: 100});
     const dir = pagination({table});
     table.dispatch(evts.SUMMARY_CHANGED, {size: 25, page: 3, filteredCount: 100});
-    t.deepEqual(dir.state(), {size: 25, page: 3, filteredCount: 100});
+    t.deepEqual(dir.state(), {size: 25, page: 3, filteredCount: 100, lastPage: 4});
 });

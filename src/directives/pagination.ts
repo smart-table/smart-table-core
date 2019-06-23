@@ -40,6 +40,7 @@ export interface PaginationDirectiveConfiguration<T> {
 export const paginationDirective = <T>({table}: PaginationDirectiveConfiguration<T>): PaginationDirective => {
     let {slice: {page: currentPage, size: currentSize}} = table.getTableState();
     let itemListLength = table.filteredCount;
+    let lastPage = Math.ceil(itemListLength / currentSize);
 
     const proxy = <PaginationProxy>sliceListener({emitter: table});
 
@@ -60,10 +61,10 @@ export const paginationDirective = <T>({table}: PaginationDirectiveConfiguration
             return currentPage > 1;
         },
         isNextPageEnabled() {
-            return Math.ceil(itemListLength / currentSize) > currentPage;
+            return lastPage > currentPage;
         },
         state() {
-            return Object.assign(table.getTableState().slice, {filteredCount: itemListLength});
+            return Object.assign(table.getTableState().slice, {filteredCount: itemListLength, lastPage});
         }
     };
     const directive = Object.assign(api, proxy);
@@ -72,6 +73,7 @@ export const paginationDirective = <T>({table}: PaginationDirectiveConfiguration
         currentPage = p;
         currentSize = s;
         itemListLength = filteredCount;
+        lastPage = Math.ceil(itemListLength / currentSize);
     });
 
     return directive;
