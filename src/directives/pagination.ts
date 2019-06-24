@@ -1,4 +1,4 @@
-import {proxyListener, ProxyEmitter} from 'smart-table-events';
+import {ProxyEmitter, proxyListener} from 'smart-table-events';
 import {SmartTable, SmartTableEvents} from './table';
 import {Summary, SummaryDirective} from './summary';
 import {SliceConfiguration} from '../slice';
@@ -40,7 +40,7 @@ export interface PaginationDirectiveConfiguration<T> {
 export const paginationDirective = <T>({table}: PaginationDirectiveConfiguration<T>): PaginationDirective => {
     let {slice: {page: currentPage, size: currentSize}} = table.getTableState();
     let itemListLength = table.filteredCount;
-    let lastPage = Math.ceil(itemListLength / currentSize);
+    let pageCount = Math.ceil(itemListLength / currentSize);
 
     const proxy = <PaginationProxy>sliceListener({emitter: table});
 
@@ -61,10 +61,10 @@ export const paginationDirective = <T>({table}: PaginationDirectiveConfiguration
             return currentPage > 1;
         },
         isNextPageEnabled() {
-            return lastPage > currentPage;
+            return pageCount > currentPage;
         },
         state() {
-            return Object.assign(table.getTableState().slice, {filteredCount: itemListLength, lastPage});
+            return Object.assign(table.getTableState().slice, {filteredCount: itemListLength, pageCount});
         }
     };
     const directive = Object.assign(api, proxy);
@@ -73,7 +73,7 @@ export const paginationDirective = <T>({table}: PaginationDirectiveConfiguration
         currentPage = p;
         currentSize = s;
         itemListLength = filteredCount;
-        lastPage = Math.ceil(itemListLength / currentSize);
+        pageCount = Math.ceil(itemListLength / currentSize);
     });
 
     return directive;
