@@ -36,10 +36,10 @@
   ],
   "homepage": "https://github.com/smart-table/smart-table-core#readme",
   "devDependencies": {
-    "rollup": "^1.14.6",
-    "rollup-plugin-node-resolve": "^3.4.0",
+    "rollup": "^1.16.7",
+    "rollup-plugin-node-resolve": "^5.2.0",
     "tap-set-exit": "^1.1.1",
-    "typescript": "^3.5.1",
+    "typescript": "^3.5.3",
     "zora": "^3.0.1"
   },
   "dependencies": {
