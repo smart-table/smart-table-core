@@ -14,5 +14,13 @@ export default {
     }, {
         format: 'cjs',
         file: `${main + '.js'}`
-    }]
+    }],
+    external: [
+        'smart-table-events',
+        'smart-table-filter',
+        'smart-table-json-pointer',
+        'smart-table-operators',
+        'smart-table-search',
+        'smart-table-sort'
+    ],
 };
