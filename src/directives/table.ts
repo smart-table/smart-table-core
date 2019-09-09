@@ -164,7 +164,15 @@ export const tableDirective = <T>({sortFactory, tableState, data, filterFactory,
         },
         getMatchingItems() {
             return [...matchingItems];
-        }
+        },
+		clearFilter(path): void {
+			if(path) {
+				delete tableState.filter[path];
+			} else {
+				tableState.filter = {};
+			}
+			table.filter({});
+		}
     };
 
     const instance = Object.assign(table, api);

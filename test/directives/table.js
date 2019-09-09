@@ -80,6 +80,56 @@ test('table directive: filter should trigger an execution with the new state', t
         'search': {}
     });
 });
+		
+test('table directive: clearing one filter should dispatch the mutated filter state', t => {
+	let filterState = null;
+	let sliceState = null;
+	const table = tableFactory({});
+	const partialState = {baz: [{value: 'qux'}]};
+	const fullState = Object.assign({foo: [{value: 'bar'}]}, partialState);
+	table.on(evts.FILTER_CHANGED, arg => filterState = arg);
+	table.filter(fullState);
+	t.deepEqual(filterState, fullState);
+	table.on(evts.PAGE_CHANGED, arg => sliceState = arg);
+	table.clearFilter('foo');
+	t.deepEqual(filterState, partialState);
+	t.deepEqual(sliceState, {page: 1}, 'should have reset the page');
+});
+
+test('table directive: clearing one filter should trigger an execution with the new state', t => {
+	const table = tableFactory({});
+	const partialState = {baz: [{value: 'qux'}]};
+	const fullState = Object.assign({foo: [{value: 'bar'}]}, partialState);
+
+	table.filter(fullState);
+	table.clearFilter('foo');
+	t.deepEqual(table.getTableState(), {'sort': {}, 'slice': {'page': 1}, 'filter': partialState, 'search': {}}
+	);
+});
+
+test('table directive: clearing all filters should dispatch the empty filter state', t => {
+	let filterState = null;
+	let sliceState = null;
+	const table = tableFactory({});
+	const fullState = {foo: [{value: 'bar'}], baz: [{value: 'qux'}]};
+	table.on(evts.FILTER_CHANGED, arg => filterState = arg);
+	table.filter(fullState);
+	t.deepEqual(filterState, fullState);
+	table.on(evts.PAGE_CHANGED, arg => sliceState = arg);
+	table.clearFilter();
+	t.deepEqual(filterState, {});
+	t.deepEqual(sliceState, {page: 1}, 'should have reset the page');
+});
+
+test('table directive: clearing all filters should trigger an execution with the new state', t => {
+	const table = tableFactory({});
+	const fullState = {foo: [{value: 'bar'}], baz: [{value: 'qux'}]};
+
+	table.filter(fullState);
+	table.clearFilter();
+	t.deepEqual(table.getTableState(), {'sort': {}, 'slice': {'page': 1}, 'filter': {}, 'search': {}}
+	);
+});
 
 test('table directive: search should dispatch the mutated search state', t => {
     let searchState = null;
