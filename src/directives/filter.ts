@@ -1,4 +1,4 @@
-import {proxyListener, ProxyEmitter} from 'smart-table-events';
+import {ProxyEmitter, proxyListener} from 'smart-table-events';
 import {FilterConfiguration, FilterOperator} from 'smart-table-filter';
 import {SmartTable, SmartTableEvents} from './table';
 
@@ -14,7 +14,7 @@ export interface FilterChangeCallback {
 
 export interface FilterDirective extends FilterProxy {
 
-    filter<K>(input: K): void;
+    filter<K>(input?: K): void;
 
     state(): FilterConfiguration;
 }
@@ -39,21 +39,25 @@ export interface FilterDirectiveConfiguration<T> {
 export const filterDirective = <T>({table, pointer, operator = FilterOperator.INCLUDES, type = FilterType.STRING}: FilterDirectiveConfiguration<T>): FilterDirective => {
     const proxy = <FilterProxy>filterListener({emitter: table});
     return Object.assign({
-        filter<K>(input: K) {
-            const filterConf = {
-                [pointer]: [
-                    {
+        filter<K>(input?: K) {
+
+            const newState = this.state();
+            if (input === void 0) {
+                delete newState[pointer];
+            } else {
+                Object.assign(newState, {
+                    [pointer]: [{
                         value: input,
                         operator,
                         type
-                    }
-                ]
+                    }]
+                });
+            }
 
-            };
-            return table.filter(filterConf);
+            return table.filter(newState);
         },
         state() {
-            return table.getTableState().filter;
+            return table.getTableState().filter || {};
         }
     }, proxy);
 };

@@ -70,7 +70,31 @@ test('table directive: filter should dispatch the mutated filter state', t => {
     t.deepEqual(sliceState, {page: 1}, 'should have reset the page');
 });
 
-test('table directive: filter should trigger an execution with the new state', t => {
+test('table directive: filter should reset state if no argument is provided', t => {
+    const table = tableFactory({
+        tableState: {
+            'sort': {},
+            'slice': {'page': 1},
+            'filter': {'foo': [{'value': 'bar'}]},
+            'search': {}
+        }
+    });
+    t.deepEqual(table.getTableState(), {
+        'sort': {},
+        'slice': {'page': 1},
+        'filter': {'foo': [{'value': 'bar'}]},
+        'search': {}
+    });
+    table.filter();
+    t.eq(table.getTableState(), {
+        sort: {},
+        slice: {page: 1},
+        filter: {},
+        search: {}
+    });
+});
+
+test('table directive: filter should trigger an execution with the new state ', t => {
     const table = tableFactory({});
     table.filter({foo: [{value: 'bar'}]});
     t.deepEqual(table.getTableState(), {
@@ -79,7 +103,7 @@ test('table directive: filter should trigger an execution with the new state', t
         'filter': {'foo': [{'value': 'bar'}]},
         'search': {}
     });
-});
+})
 
 test('table directive: search should dispatch the mutated search state', t => {
     let searchState = null;

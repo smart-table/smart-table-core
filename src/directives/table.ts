@@ -1,10 +1,10 @@
-import {curry, tap, compose} from 'smart-table-operators';
+import {compose, curry, tap} from 'smart-table-operators';
 import {pointer} from 'smart-table-json-pointer';
 import {emitter, Emitter} from 'smart-table-events';
 import {SortConfiguration} from './sort';
 import {SearchConfiguration} from 'smart-table-search';
 import {FilterConfiguration} from 'smart-table-filter';
-import {sliceFactory, SliceConfiguration} from '../slice';
+import {SliceConfiguration, sliceFactory} from '../slice';
 
 export const enum SmartTableEvents {
     TOGGLE_SORT = 'TOGGLE_SORT',
@@ -41,13 +41,13 @@ export interface SmartTable<T> extends Emitter {
     readonly filteredCount: number;
     readonly length: number;
 
-    sort(input: SortConfiguration): void;
+    sort(input?: SortConfiguration): void;
 
-    filter(input: FilterConfiguration): void;
+    filter(input?: FilterConfiguration): void;
 
     slice(input: SliceConfiguration): void;
 
-    search(input: SearchConfiguration): void;
+    search(input?: SearchConfiguration): void;
 
     eval(tableState?: TableState): Promise<DisplayedItem<T>[]>;
 
@@ -87,7 +87,7 @@ export const tableDirective = <T>({sortFactory, tableState, data, filterFactory,
         filteredCount = count;
     });
 
-    const safeAssign = curry((base, extension) => Object.assign({}, base, extension));
+    const safeAssign = newState => Object.assign({}, newState);
     const dispatch = curry(table.dispatch, 2);
 
     const dispatchSummary = (filtered: T[]) => {
@@ -122,18 +122,21 @@ export const tableDirective = <T>({sortFactory, tableState, data, filterFactory,
     };
 
     const updateTableState = curry((pter, ev, newPartialState) => compose(
-        safeAssign(pter.get(tableState)),
+        safeAssign,
         tap(dispatch(ev)),
         pter.set(tableState)
     )(newPartialState));
 
     const resetToFirstPage = () => updateTableState(slicePointer, SmartTableEvents.PAGE_CHANGED, {page: 1});
 
-    const tableOperation = (pter, ev) => compose(
-        updateTableState(pter, ev),
-        resetToFirstPage,
-        () => table.exec() // We wrap within a function so table.exec can be overwritten (when using with a server for example)
-    );
+    const tableOperation = (pter, ev) => {
+        const fn = compose(
+            updateTableState(pter, ev),
+            resetToFirstPage,
+            () => table.exec() // We wrap within a function so table.exec can be overwritten (when using with a server for example)
+        );
+        return (arg = {}) => fn(arg);
+    };
 
     const api = {
         sort: tableOperation(sortPointer, SmartTableEvents.TOGGLE_SORT),
@@ -153,14 +156,7 @@ export const tableDirective = <T>({sortFactory, tableState, data, filterFactory,
             table.on(SmartTableEvents.DISPLAY_CHANGED, fn);
         },
         getTableState() {
-            const sort = Object.assign({}, tableState.sort);
-            const search = Object.assign({}, tableState.search);
-            const slice = Object.assign({}, tableState.slice);
-            const filter = {};
-            for (const prop of Object.getOwnPropertyNames(tableState.filter)) {
-                filter[prop] = tableState.filter[prop].map(v => Object.assign({}, v));
-            }
-            return {sort, search, slice, filter};
+            return JSON.parse(JSON.stringify(tableState));
         },
         getMatchingItems() {
             return [...matchingItems];
