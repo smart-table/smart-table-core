@@ -127,7 +127,11 @@ export const tableDirective = <T>({sortFactory, tableState, data, filterFactory,
         pter.set(tableState)
     )(newPartialState));
 
-    const resetToFirstPage = () => updateTableState(slicePointer, SmartTableEvents.PAGE_CHANGED, {page: 1});
+    const resetToFirstPage = () => updateTableState(
+        slicePointer,
+        SmartTableEvents.PAGE_CHANGED,
+        Object.assign({}, slicePointer.get(tableState), {page: 1})
+    );
 
     const tableOperation = (pter, ev) => {
         const fn = compose(

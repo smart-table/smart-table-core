@@ -103,7 +103,25 @@ test('table directive: filter should trigger an execution with the new state ', 
         'filter': {'foo': [{'value': 'bar'}]},
         'search': {}
     });
-})
+});
+
+test('table directive: filter should overwrite the whole filter state', t => {
+    const table = tableFactory();
+    table.filter({foo: [{value: 'bar'}]});
+    t.eq(table.getTableState(), {
+        'sort': {},
+        'slice': {'page': 1},
+        'filter': {'foo': [{'value': 'bar'}]},
+        'search': {}
+    });
+    table.filter({bar: [{value: 'baz'}]});
+    t.eq(table.getTableState(), {
+        'sort': {},
+        'slice': {'page': 1},
+        'filter': {'bar': [{value: 'baz'}]},
+        'search': {}
+    });
+});
 
 test('table directive: search should dispatch the mutated search state', t => {
     let searchState = null;

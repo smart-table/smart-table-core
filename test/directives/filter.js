@@ -17,6 +17,7 @@ test('filter directive should be able to register listener', (t) => {
     table.dispatch(evs.FILTER_CHANGED);
     t.equal(counter, 1, 'should have updated the counter');
 });
+
 test('filter directive should call table filter method passing a clause argument', t => {
     const table = fakeTable();
     const fd = filter({table, pointer: 'foo.bar', operator: 'is', type: 'number'});
