@@ -1,6 +1,6 @@
 {
   "name": "smart-table-core",
-  "version": "3.0.6",
+  "version": "3.0.7",
   "description": "smart-core directives",
   "main": "./dist/bundle/index",
   "types": "./dist/declarations/index.d.ts",
