@@ -316,6 +316,26 @@ export default ({test}) => {
         t.equal(table.filteredCount, 2, 'filtered count should have been updated');
     });
 
+    test('filteredCount allows falsy value', t => {
+        const tableState = {
+            sort: {pointer: 'id', direction: SortDirection.DESC},
+            search: {},
+            filter: {name: [{value: 'b'}]},
+            slice: {page: 1, size: 1}
+        };
+        const table = tableFactory({
+            data: [
+                {id: 1, name: 'foo'},
+                {id: 2, name: 'blah'},
+                {id: 3, name: 'bip'}
+            ],
+            tableState
+        });
+        t.equal(table.filteredCount, 3, 'initially with the length of data array');
+        table.dispatch(evts.SUMMARY_CHANGED, {});
+        t.equal(table.filteredCount, 0, 'filteredCount should be a number');
+    });
+
     test('getTableState should return a deep copy of the tableState', t => {
         const tableState = {
             sort: {pointer: 'foo'},
