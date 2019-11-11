@@ -1,5 +1,5 @@
 import {emitter} from 'smart-table-events';
-import {SmartTableEvents as evts, summaryDirective as summary} from '../../dist/bundle/module';
+import {SmartTableEvents as evts, summaryDirective as summary} from '../../dist/bundle/module.js';
 
 export default ({test}) => {
     test('summary directive should be able to register listener', (t) => {

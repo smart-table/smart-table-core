@@ -1,4 +1,4 @@
-import {SmartTableEvents as evts, workingIndicatorDirective as workingIndicator} from '../../dist/bundle/module';
+import {SmartTableEvents as evts, workingIndicatorDirective as workingIndicator} from '../../dist/bundle/module.js';
 import {emitter} from 'smart-table-events';
 
 export default ({test}) => {

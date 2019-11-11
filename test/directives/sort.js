@@ -1,4 +1,4 @@
-import {SmartTableEvents as evts, SortDirection, sortDirective as sort} from '../../dist/bundle/module';
+import {SmartTableEvents as evts, SortDirection, sortDirective as sort} from '../../dist/bundle/module.js';
 import {emitter} from 'smart-table-events';
 
 const fakeTable = (initialState = {}) => {

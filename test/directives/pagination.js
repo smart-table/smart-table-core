@@ -1,4 +1,4 @@
-import {paginationDirective as pagination, SmartTableEvents as evts} from '../../dist/bundle/module';
+import {paginationDirective as pagination, SmartTableEvents as evts} from '../../dist/bundle/module.js';
 import {emitter} from 'smart-table-events';
 
 const fakeTable = (slice = {}) => {

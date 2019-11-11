@@ -1,4 +1,4 @@
-import {sliceFactory as slicer} from '../dist/bundle/module';
+import {sliceFactory as slicer} from '../dist/bundle/module.js';
 
 export default ({test}) => {
     test('slice: get a page with specified size', (t) => {

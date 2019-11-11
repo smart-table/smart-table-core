@@ -3,7 +3,7 @@ import {
     smartTable as tableFactory,
     SmartTableEvents as evts,
     SortDirection
-} from '../../dist/bundle/module';
+} from '../../dist/bundle/module.js';
 
 const wait = time => new Promise(resolve => {
     setTimeout(() => {

@@ -1,4 +1,4 @@
-import {smartTable} from '../dist/bundle/module';
+import {smartTable} from '../dist/bundle/module.js';
 
 export default ({test}) => {
     test('compose table factory', (t) => {

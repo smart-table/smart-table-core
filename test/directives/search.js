@@ -1,5 +1,5 @@
 import {emitter} from 'smart-table-events';
-import {searchDirective as search, SmartTableEvents as evs} from '../../dist/bundle/module';
+import {searchDirective as search, SmartTableEvents as evs} from '../../dist/bundle/module.js';
 
 const fakeTable = () => {
     const table = emitter();
