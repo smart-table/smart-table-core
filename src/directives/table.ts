@@ -84,7 +84,7 @@ export const tableDirective = <T>({sortFactory, tableState, data, filterFactory,
 
     // We need to register in case the summary comes from outside (like server data)
     table.on(SmartTableEvents.SUMMARY_CHANGED, ({filteredCount: count}) => {
-        filteredCount = count;
+        filteredCount = count || 0;
     });
 
     const safeAssign = newState => Object.assign({}, newState);
